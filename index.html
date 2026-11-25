@@ -2,6 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>
+/* boot error catcher: runs before anything else so a crash while loading is shown on screen */
+window.__stage='page';window.__bootErr=null;
+function __showErr(msg){window.__bootErr=msg;var d=document.getElementById('errBar');if(!d){d=document.createElement('div');d.id='errBar';d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:999;background:#b00020;color:#fff;font:600 15px sans-serif;padding:10px 14px;white-space:pre-wrap';(document.body||document.documentElement).appendChild(d)}if(!d.dataset.n){d.dataset.n=1;d.textContent='Error, please send a photo of this:'}if(d.textContent.split('\n').length<14)d.textContent+='\n• '+msg}
+window.addEventListener('error',function(ev){var e=ev.error,m=(e&&e.message)||ev.message||'unknown',w=(e&&e.stack||'').split('\n')[1]||'';__showErr(m+'\nwhile loading: '+window.__stage+(ev.lineno?'  (line '+ev.lineno+':'+ev.colno+')':'')+'\n'+w.trim().slice(0,120))});
+window.addEventListener('unhandledrejection',function(ev){var r=ev.reason;__showErr('(async) '+((r&&r.message)||r)+'\nstage: '+window.__stage)});
+window.addEventListener('load',function(){if(!window.THREE)__showErr('The 3D engine (three.js) did not download. Check the internet connection, then reload.');else setTimeout(function(){if(window.__stage!=='running')__showErr('Game stopped while loading: '+window.__stage+(window.__bootErr?'':' (no error message)'))},4000)});
+</script>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Midnight Burner VR</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -195,7 +203,7 @@ a.btn{display:inline-flex;align-items:center;min-height:42px;padding:0 16px;bord
 </nav>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-{
+{window.__stage='setup';
 /* ---- spray engine: tiled surfaces, soft core + halo + speckle, drips ---- */
 const TILE=512;
 const CAPS=[
@@ -567,6 +575,8 @@ function buildRoof(S){
 const BUILD=[buildHall,buildAlley,buildTrain,buildRoof];
 function ensureScene(i){const S=SC[i];if(S.group)return S;S.group=new THREE.Group();scene.add(S.group);BUILD[i](S);S.group.updateMatrixWorld(true);S.group.traverse(o=>{o.matrixAutoUpdate=false});S.group.visible=false;S.env=pmrem.fromEquirectangular(S.sky).texture;return S}
 
+
+window.__stage='gpu';
 /* ---------- GPU painting: every dab is an instanced quad drawn straight into the wall's render targets ---------- */
 const STAMP_MAX=4000;let GPU_OK=false;
 /* plain batched quads (no instancing): 4 vertices per dab, every vertex carries the dab's data */
@@ -601,7 +611,7 @@ const blitScene=new THREE.Scene();blitScene.add(blitMesh);
 let gpuN=0,gpuS=null;const gpuBox=[1e9,1e9,-1e9,-1e9],colCache={},imgTex=new Map();
 const rgbOf=hex=>colCache[hex]||(colCache[hex]=hexRgb(hex).map(v=>v/255));
 function newRT(w,h){const r=new THREE.WebGLRenderTarget(w,h,{minFilter:THREE.LinearFilter,magFilter:THREE.LinearFilter,generateMipmaps:false,depthBuffer:false,stencilBuffer:false});r.texture.encoding=THREE.sRGBEncoding;return r}
-function rtRender(sc,cam,target){const xrOn=renderer.xr.enabled,prev=renderer.getRenderTarget(),ac0=renderer.autoClear,su=renderer.shadowMap.needsUpdate;
+function rtRender(sc,cam,target){if(!target)return;const xrOn=renderer.xr.enabled,prev=renderer.getRenderTarget(),ac0=renderer.autoClear,su=renderer.shadowMap.needsUpdate;
   renderer.xr.enabled=false;renderer.autoClear=false;renderer.shadowMap.needsUpdate=false;
   try{renderer.setRenderTarget(target);renderer.render(sc,cam)}finally{renderer.setRenderTarget(prev);renderer.xr.enabled=xrOn;renderer.autoClear=ac0;renderer.shadowMap.needsUpdate=su}}
 function tileBlit(tx,t,target,opaque,alpha){blitMat.uniforms.tMap.value=tx;blitMat.uniforms.uOpaque.value=opaque?1:0;blitMat.uniforms.uAlpha.value=alpha===undefined?1:alpha;blitMesh.scale.set(t.w,t.h,1);blitMesh.position.set(t.x+t.w/2,-(t.y+t.h/2),0);rtRender(blitScene,t.cam,target)}
@@ -612,8 +622,8 @@ function gpuSurface(s){s.gpu=true;
   s.paintBase=()=>{if(gpuS===s){gpuN=0;gpuS=null}for(const t of s.tiles)tileBlit(t.baseTex,t,t.rt,true)}}
 function gpuFlush(){if(!gpuN||!gpuS)return;const s=gpuS;stampGeo.setDrawRange(0,gpuN*6);
   for(const a of [iPos,iSize,iRot,iCol,iShape]){a.updateRange.offset=0;a.updateRange.count=gpuN*4*a.itemSize;a.needsUpdate=true}
-  for(const t of s.tiles){if(t.x>gpuBox[2]||t.x+t.w<gpuBox[0]||t.y>gpuBox[3]||t.y+t.h<gpuBox[1])continue;rtRender(stampScene,t.cam,t.rt)}
-  gpuN=0;gpuS=null;gpuBox[0]=gpuBox[1]=1e9;gpuBox[2]=gpuBox[3]=-1e9}
+  try{for(const t of s.tiles){if(!t.rt||t.x>gpuBox[2]||t.x+t.w<gpuBox[0]||t.y>gpuBox[3]||t.y+t.h<gpuBox[1])continue;rtRender(stampScene,t.cam,t.rt)}}
+  finally{gpuN=0;gpuS=null;gpuBox[0]=gpuBox[1]=1e9;gpuBox[2]=gpuBox[3]=-1e9}}
 GPU={
   push(s,shape,x,y,hw,hh,rot,col,a){
     if(gpuS&&gpuS!==s)gpuFlush();if(gpuN>=STAMP_MAX)gpuFlush();
@@ -637,10 +647,12 @@ function canvasToWall(s,img){gpuFlush();if(!s.gpu){for(const t of s.tiles){t.ctx
   const tx=new THREE.CanvasTexture(c);tx.generateMipmaps=false;tx.minFilter=THREE.LinearFilter;tileBlit(tx,t,t.rt,true);tx.dispose()}}
 
 function gpuSelfTest(){try{
-  const rt=newRT(8,8),t={x:0,y:0,w:8,h:8,cam:new THREE.OrthographicCamera(0,8,0,-8,-1,1)},c=mkCanvas(8,8),cx=c.getContext('2d');cx.fillStyle='#000';cx.fillRect(0,0,8,8);
+  const rt=newRT(8,8),t={x:0,y:0,w:8,h:8,rt,cam:new THREE.OrthographicCamera(0,8,0,-8,-1,1)},c=mkCanvas(8,8),cx=c.getContext('2d');cx.fillStyle='#000';cx.fillRect(0,0,8,8);
   const tx=new THREE.CanvasTexture(c);tileBlit(tx,t,rt,true);const fake={tiles:[t],gpu:true};
   GPU.push(fake,2,4,4,4,4,0,'#ff0000',1);gpuFlush();const px=new Uint8Array(8*8*4);renderer.readRenderTargetPixels(rt,0,0,8,8,px);rt.dispose();tx.dispose();
-  const mid=(4*8+4)*4;return px[mid]>180&&px[mid+1]<80&&px[mid+2]<80}catch(e){console.warn('GPU paint self-test failed',e);return false}}
+  const mid=(4*8+4)*4;return px[mid]>180&&px[mid+1]<80&&px[mid+2]<80}catch(e){console.warn('GPU paint self-test failed',e);gpuN=0;gpuS=null;gpuBox[0]=gpuBox[1]=1e9;gpuBox[2]=gpuBox[3]=-1e9;return false}}
+
+window.__stage='tools';
 /* ---------- tools: can, roller, stencils ---------- */
 const canGeo={body:new THREE.CylinderGeometry(.033,.033,.19,28),label:new THREE.CylinderGeometry(.0336,.0336,.13,28),dome:new THREE.SphereGeometry(.033,24,10,0,Math.PI*2,0,Math.PI/2),noz:new THREE.CylinderGeometry(.008,.009,.016,12)};
 const canMetal=std({color:0x2a2b2e,metalness:.85,roughness:.32}),domeMat=std({color:0xc5cad0,metalness:.9,roughness:.25}),nozMat=std({color:0xf2f2f2,roughness:.6});
@@ -723,6 +735,8 @@ function undo(){endStroke();const u=undoStack.pop();if(!u){toast('Nothing to und
 function buff(i,quiet){const S=SC[i===undefined?sceneI:i];if(!S.surf)return;endStroke();if(!quiet){const u={s:S.surf,snap:new Map()};for(const t of S.surf.tiles)u.snap.set(t,S.surf.gpu?snapTile(t):cpuSnap(t));undoStack.push(u);if(undoStack.length>UNDO_MAX)dropUndo(undoStack.shift())}
   for(let k=drips.length-1;k>=0;k--)if(drips[k].s===S.surf)drips.splice(k,1);S.surf.paintBase();S.surf.wet.fill(0)}
 
+
+window.__stage='audio2';
 /* ---------- audio ---------- */
 let ac,master,musicBus,ambBus,rev,noiseBuf,hissGain,hissF,lowGain,crackleG,analyser;
 let X=null,MB=null,RV=null,NB=null; /* the context + buses instruments draw into: live or offline */
@@ -834,6 +848,8 @@ const liveTimer=setInterval(()=>{if(!liveOn||!ac||!cur||!cur.live)return;const s
   try{while(liveT<ac.currentTime+.25){playStep(lStep,lBar,liveT+(lStep%2?SD*TRACKS[trI].swing:0));liveT+=SD;if(++lStep===16){lStep=0;lBar++;if(lBar>=16){liveOn=false;setTimeout(()=>playNext(),0);break}}}}finally{[X,MB,RV,NB]=s}},50);
 const loopTimer=setInterval(()=>{if(ac&&cur&&cur.src&&ac.currentTime>cur.start+cur.len-.6)playNext()},400);
 
+
+window.__stage='ui';
 /* ---------- desktop wheels (colour + cap) ---------- */
 const wheelItems=mode=>mode==='col'?SETS[setI].items.map(gi=>COLORS[gi]):CAPS;
 function drawWheel(x,S,mode,hi){
@@ -940,6 +956,8 @@ $('#dock').addEventListener('click',e=>{const b=e.target.closest('button');if(!b
 $('#spotCards').addEventListener('click',e=>{const b=e.target.closest('[data-start]');if(!b)return;setScene(+b.dataset.start)});
 $('#npNext').addEventListener('click',()=>{nextTrack()});
 
+
+window.__stage='proj';
 /* ---------- the tablet you hold in your left hand ---------- */
 const TAB_W=.3,TAB_H=.3*MH/MW+.03;
 const tablet=new THREE.Group();tablet.visible=false;scene.add(tablet);
@@ -1059,6 +1077,8 @@ function projBrighter(d){projBright=Math.max(.15,Math.min(1,projBright+d));projM
 $('#projs').innerHTML=PROJ.map((p,i)=>`<button data-proj="${i}">${p[0]}</button>`).join('')+'<button id="projDim">Dimmer</button><button id="projBri">Brighter</button>';
 const projThumbs=[];function projThumb(i){if(projThumbs[i])return projThumbs[i];const c=mkCanvas(240,90),x=c.getContext('2d');x.fillStyle='#0b0d12';x.fillRect(0,0,240,90);const t=mkCanvas(480,180);const tx=t.getContext('2d');PROJ[i][1](tx,480,180);x.drawImage(t,0,0,240,90);return projThumbs[i]=c}
 
+
+window.__stage='title';
 /* ---------- title: a BURNER painted live on the wall ---------- */
 let piece=null,schemeI=0,titleT=0,played=false;
 const SCHEMES=[
@@ -1134,6 +1154,8 @@ $('#goVR').addEventListener('click',()=>{startGame();enterVR()});
 const firstTouch=()=>{initAudio();$('#tap').style.display='none';syncUI();removeEventListener('pointerdown',firstTouch,true);removeEventListener('keydown',firstTouch,true)};
 addEventListener('pointerdown',firstTouch,true);addEventListener('keydown',firstTouch,true);
 
+
+window.__stage='store';
 /* ---------- saves, photos and the gallery (kept in this browser with IndexedDB) ---------- */
 let dbP=null;
 function db(){if(dbP)return dbP;dbP=new Promise((res,rej)=>{try{const r=indexedDB.open('midnight-burner',3);r.onupgradeneeded=()=>{const d=r.result,has=n=>d.objectStoreNames.contains(n);if(!has('walls'))d.createObjectStore('walls');if(!has('photos'))d.createObjectStore('photos',{keyPath:'id'});if(!has('music'))d.createObjectStore('music',{keyPath:'id'});if(!has('misc'))d.createObjectStore('misc')};r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}});dbP.catch(()=>{dbP=null});return dbP}
@@ -1218,6 +1240,8 @@ $('#mmClose').addEventListener('click',()=>{mm.hidden=true});
 $('#openMusic').addEventListener('click',openMusic);
 addEventListener('keydown',e=>{if(e.code==='Escape'&&!mm.hidden)mm.hidden=true});
 
+
+window.__stage='batch1';
 /* ---------- batch 1: undo depth, autosave, gloves, sketch import, time-lapse, can pressure, wet paint ---------- */
 const UNDO_MAX=10;let wallChanged=false;
 
@@ -1339,6 +1363,8 @@ function batchTick(dt,pr,rollAt){const painting=pr>.02||!!rollAt;autoT+=dt;if(au
 {const ol=loadWall;loadWall=async function(i){const r=await ol(i);if(r){resetLapse(i);wallChanged=false}return r}}
 function canStatus(){const c=canOf(colI);return Math.round(c.paint*100)+'% paint · '+(clogged?'clogged':c.pressure>.7?'good pressure':c.pressure>.45?'pressure dropping':'shake it!')}
 
+
+window.__stage='batch2';
 /* ---------- batch 2: new spots, life, boombox, marker, tape, special paints, challenge, rep ---------- */
 
 const SAFE=/[?&]safe/.test(location.search);
@@ -1525,6 +1551,8 @@ function batch2Inner(dt,pr,painting){const S=SC[sceneI];if(S.life)for(const f of
 if(SAFE){console.log('Midnight Burner: safe mode');initSurfaceMaps=function(){};wetMark=function(){};composeSurface=function(){};drySurfaces=function(){};resetGloss=function(){};
   batchTick=function(){};batch2Inner=function(){};autosave=function(){};lapseTick=function(){};
   for(const S of SC)if(S.surf)for(const m of S.surf.meshes){m.material.roughnessMap=m.material.metalnessMap=m.material.emissiveMap=null;m.material.needsUpdate=true}}
+
+window.__stage='loop';
 /* ---------- WebXR ---------- */
 const ctrl=[0,1].map(i=>{const c=renderer.xr.getController(i),gp=renderer.xr.getControllerGrip(i);rig.add(c,gp);c.userData.src=null;c.userData.grip=gp;
   c.addEventListener('connected',e=>{c.userData.src=e.data;assignHands()});c.addEventListener('disconnected',()=>{c.userData.src=null;assignHands()});return c});
@@ -1678,16 +1706,18 @@ function tick(){
   if(xr){renderer.xr.enabled=true;if(renderer.getRenderTarget())renderer.setRenderTarget(null)}renderer.render(scene,camera);
 }
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-GPU_OK=!/[?&]cpu/.test(location.search)&&gpuSelfTest();console.log('Midnight Burner paint path:',GPU_OK?'GPU':'CPU');sceneI=1;ensureScene(1);setScene(1);setCanColour(colI);drawSheet();showTitle();
-(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(()=>{drawMenu();setTimeout(()=>{if(!started&&!played)newPiece()},150)});
-loadSketch();refreshContinue();renderRep();
+renderer.setAnimationLoop((t,f)=>{if(typeof safeTick==='function')safeTick(t,f)});
+const bootStep=(name,fn)=>{try{fn()}catch(e){console.warn('startup step failed:',name,e);if(window.__showErr)__showErr('startup step "'+name+'": '+(e&&e.message)+'\n'+((e&&e.stack||'').split('\n')[1]||'').trim().slice(0,120))}};
+bootStep('gpu test',()=>{GPU_OK=!/[?&]cpu/.test(location.search)&&gpuSelfTest()});console.log('Midnight Burner paint path:',GPU_OK?'GPU':'CPU');sceneI=1;
+bootStep('build spot',()=>ensureScene(1));bootStep('set spot',()=>setScene(1));bootStep('can colour',()=>setCanColour(colI));bootStep('stencil sheet',drawSheet);bootStep('title',showTitle);
+(document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(()=>{bootStep('menu',drawMenu);setTimeout(()=>{if(!started&&!played)bootStep('title piece',newPiece)},150)});
+bootStep('sketch',loadSketch);bootStep('continue',refreshContinue);bootStep('rep',renderRep);
 let errShown=0;function reportErr(e){const m=(e&&e.message||String(e)).slice(0,120),line=e&&e.stack?(e.stack.split('\n')[1]||'').trim().slice(0,90):'';
-  if(errShown++<3)console.error(e);let d=document.getElementById('errBar');if(!d){d=document.createElement('div');d.id='errBar';d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99;background:#b00020;color:#fff;font:600 14px Archivo,sans-serif;padding:8px 12px;white-space:pre-wrap';document.body.appendChild(d)}
-  d.textContent='Error (please send a photo of this): '+m+'\n'+line;try{vrNote='Error: '+m.slice(0,40);vrNoteT=30;drawHud()}catch(_){}}
-window.addEventListener('error',ev=>reportErr(ev.error||ev.message));
+  if(errShown++<3)console.error(e);if(window.__showErr)__showErr(m+'\n'+line);try{vrNote='Error: '+m.slice(0,40);vrNoteT=30;drawHud()}catch(_){}}
+
 {const ce=console.error.bind(console);let shaderBad=0;console.error=function(...a){ce(...a);const m=String(a[0]||'');if(!shaderBad&&/WebGLProgram|shader|WebGL: /i.test(m)){shaderBad=1;reportErr(new Error('Graphics: '+m.replace(/\s+/g,' ').slice(0,100)))}}}window.addEventListener('unhandledrejection',ev=>reportErr(ev.reason));
 function safeTick(t,f){try{tick(t,f)}catch(e){reportErr(e);try{renderer.xr.enabled=true;renderer.setRenderTarget(null);renderer.autoClear=true;renderer.render(scene,camera)}catch(_){}}}
-renderer.setAnimationLoop(safeTick);
+window.__stage='running';
 }
 </script>
 </body>
