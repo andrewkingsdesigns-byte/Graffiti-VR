@@ -127,7 +127,6 @@ label.ghosty:hover{background:rgba(255,255,255,.14)}label.ghosty:focus-within{ou
 .word small{color:var(--mute)}
 .ph.vid{position:relative}.ph.vid::after{content:'▶';position:absolute;left:14px;top:12px;width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;display:grid;place-items:center;font-size:14px}
 #vVid{display:block;width:100%;max-height:72vh;background:#000}
-.brand .rep{font:inherit;color:var(--acc)}
 .spot.locked{filter:grayscale(.8) brightness(.6)}.spot.locked::after{content:attr(data-lock);position:absolute;top:8px;right:10px;font:700 12px Archivo,sans-serif;color:var(--acc)}
 #dock .locked{opacity:.4}
 #info .chal{color:var(--acc)}
@@ -142,7 +141,7 @@ a.btn{display:inline-flex;align-items:center;min-height:42px;padding:0 16px;bord
 <div class="vig"></div><div class="grain"></div>
 <section id="title">
   <header class="tbar">
-    <div class="brand"><b>Midnight Burner</b><span>VR graffiti · <b id="repChip" class="rep">0 rep</b></span></div>
+    <div class="brand"><b>Midnight Burner</b><span>VR graffiti</span></div>
     <button class="ghost" id="openHow">How to play</button><div class="np"><canvas id="eq" width="120" height="48"></canvas><div><small>Now playing</small><b id="npName">Press play</b></div><button id="npNext" aria-label="Next track">Next</button></div>
   </header>
   
@@ -161,14 +160,14 @@ a.btn{display:inline-flex;align-items:center;min-height:42px;padding:0 16px;bord
 <li><b>Shake</b> your hand to build pressure: the can sputters as pressure drops and runs out of paint. Pick the colour again for a fresh can</li>
 <li>If the cap clogs, press <b>B</b> to flip the can (or shake it hard)</li>
 <li><b>A</b> undo · <b>X</b> next track</li>
-<li><b>Y</b> brings up the tablet in your left hand; point with your right hand and pull the trigger to choose</li>
+<li><b>Y</b> brings out the tablet in front of you (press again to put it away). Reach for it and <b>squeeze the left grip</b> to pick it up; let go and it stays floating where you left it</li>
+<li>Point at the tablet's screen with your right hand and pull the trigger to choose</li>
 <li><b>Tablet → Tools</b>: spray can, roller (big areas), stencils, Save wall, Camera, Time-lapse</li>
 <li><b>Camera</b>: aim the tablet and pull the <b>left trigger</b> to shoot</li>
 <li><b>Stencil</b>: hold <b>left grip</b>, press it flat on the wall, spray, let go to peel it off</li>
 <li><b>Tablet → Project</b>: faint guide lines on the wall: your word, your own sketch, and more</li>
-<li><b>Marker</b>: touch the wall and draw · <b>Tape</b>: pull the trigger and drag a straight strip, then <b>Peel tape</b> for crisp edges</li>
-<li>Point at the <b>boombox</b> and pull the trigger to skip tracks</li>
-<li><b>Tablet → World → Challenge</b>: 3 minutes, and stop spraying when the security light sweeps past</li></ul></div>
+<li><b>Marker</b>: touch the wall with the tip, or hold the trigger with the tip close to the wall, and draw</li>
+<li>Point at the <b>boombox</b> and pull the trigger to skip tracks</li></ul></div>
 <div><h4>In the browser</h4><ul>
 <li>Hold <b>left mouse</b> on the wall to spray or roll (<kbd>Shift</kbd> feathers) · scroll for can distance</li>
 <li>Hold <b>right mouse</b> for colours (scroll for sets) · hold <kbd>Q</kbd> or press <kbd>1</kbd>–<kbd>9</kbd> for caps</li>
@@ -181,8 +180,7 @@ a.btn{display:inline-flex;align-items:center;min-height:42px;padding:0 16px;bord
 <li><b>Gallery</b> holds your photos and time-lapse videos</li>
 <li><b>Import sketch</b>: a photo of a drawing becomes projector guide lines (do this here, before entering VR)</li>
 <li><b>My music</b>: add your own songs to the mix</li>
-<li><b>Rep</b>: earn it by painting, photos, time-lapses and challenges to unlock caps, colours, tools and spots (or switch on <b>Unlock everything</b> in Tablet → World)</li>
-<li>Browser: <kbd>G</kbd> peels tape · click the boombox to skip tracks</li></ul></div></div></div></div>
+<li>Browser: click the boombox to skip tracks</li></ul></div></div></div></div>
 <div class="modal" id="gallery" hidden><div class="panel" role="dialog" aria-label="Gallery"><div class="phead"><h2>Gallery</h2><button data-gtab="photos" aria-pressed="true">Photos</button><button data-gtab="walls">Saved walls</button><button id="galClose">Close</button></div><div id="galBody"></div></div></div>
 <div class="modal" id="musicM" hidden><div class="panel" role="dialog" aria-label="Music"><div class="phead"><h2>Music</h2><button data-mm="both">Beats + my music</button><button data-mm="beats">Beats only</button><button data-mm="mine">My music only</button><button id="mmClose">Close</button></div><div id="mmBody"></div></div></div>
 <div class="modal" id="viewer" hidden><div class="panel" role="dialog" aria-label="Photo"><div class="phead"><h2>Photo</h2><a class="btn" id="vDown" href="#" download>Download</a><button id="vDel">Delete</button><button id="vClose">Close</button></div><img id="vImg" alt="Photo of your piece"><video id="vVid" controls playsinline loop hidden></video></div></div>
@@ -199,7 +197,7 @@ a.btn{display:inline-flex;align-items:center;min-height:42px;padding:0 16px;bord
   <div class="grp"><button id="projBtn" aria-pressed="false">Projector</button></div>
   <div class="grp" id="projs" hidden></div>
   <div class="grp" id="spots"></div>
-  <div class="grp"><button id="undo">Undo</button><button id="flip">Flip</button><button id="clear">Buff</button><button id="save">Save</button><button id="photo">Photo</button><button id="lapse">Time-lapse</button><button id="chal">Challenge</button><button id="mus" aria-pressed="true">Beat</button><button id="next">Next track</button><button id="mymusic">My music</button><button id="vr" class="hot">VR</button><button id="menu">Menu</button></div>
+  <div class="grp"><button id="undo">Undo</button><button id="flip">Flip</button><button id="clear">Buff</button><button id="save">Save</button><button id="photo">Photo</button><button id="lapse">Time-lapse</button><button id="mus" aria-pressed="true">Beat</button><button id="next">Next track</button><button id="mymusic">My music</button><button id="vr" class="hot">VR</button><button id="menu">Menu</button></div>
 </nav>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -880,7 +878,7 @@ function rr(x,y,w,h,r){mx.beginPath();mx.moveTo(x+r,y);mx.arcTo(x+w,y,x+w,y+h,r)
 function drawMenu(){regions.length=0;mx.clearRect(0,0,MW,MH);if(camMode){drawCamUI();return}mx.fillStyle='rgba(12,13,17,.95)';rr(0,0,MW,MH,30);mx.fill();
   mx.fillStyle='#f7f6f2';mx.font="900 38px 'Big Shoulders Display',sans-serif";mx.textAlign='left';mx.fillText('MIDNIGHT BURNER',24,50);
   const reg=(x,y,w,h,fn)=>regions.push({x,y,w,h,fn}),lbl=(t,y)=>{mx.fillStyle='#a3a8b0';mx.font='600 19px Archivo,sans-serif';mx.textAlign='left';mx.fillText(t,24,y)};
-  const btn=(x,y,w,h,t,on,fn,fs)=>{const lk=lockOf(t);reg(x,y,w,h,lk?()=>note(t+' unlocks at '+lk+' rep'):fn);mx.fillStyle=on?'#c6ff00':'#262930';rr(x,y,w,h,12);mx.fill();mx.fillStyle=on?'#0a0a0a':'#f7f6f2';mx.font=`700 ${fs||18}px Archivo,sans-serif`;mx.textAlign='center';mx.fillText(t,x+w/2,y+h/2+(lk?0:6));
+  const btn=(x,y,w,h,t,on,fn,fs)=>{const lk=0;reg(x,y,w,h,fn);mx.fillStyle=on?'#c6ff00':'#262930';rr(x,y,w,h,12);mx.fill();mx.fillStyle=on?'#0a0a0a':'#f7f6f2';mx.font=`700 ${fs||18}px Archivo,sans-serif`;mx.textAlign='center';mx.fillText(t,x+w/2,y+h/2+(lk?0:6));
     if(lk){mx.fillStyle='rgba(8,9,12,.55)';rr(x,y,w,h,12);mx.fill();mx.fillStyle='#c6ff00';mx.font='700 12px Archivo,sans-serif';mx.fillText(lk+' rep',x+w/2,y+h-6)}mx.textAlign='left'};
   ['Paint','Tools','Project','World','Controls'].forEach((t,i)=>btn(24+i*93,66,87,48,t,i===bookTab,()=>{bookTab=i;drawMenu()},i===4?15:17));
   if(bookTab===0){
@@ -889,12 +887,12 @@ function drawMenu(){regions.length=0;mx.clearRect(0,0,MW,MH);if(camMode){drawCam
     lbl('Colour: '+COLORS[colI][0],328);lbl('Can: '+canStatus()+' · shake to build pressure',354);lbl('Cap: '+CAPS[capI].name,384);
     CAPS.forEach((c,i)=>btn(24+(i%5)*93,394+Math.floor(i/5)*56,87,48,['Needle','Skinny','Soft','Stock','Fat','NY fat','S. fat','Calli','Flat'][i],i===capI,()=>setCap(i),17));
   }else if(bookTab===1){
-    lbl('Tool',160);['can','roller','stencil','marker','tape'].forEach((t,i)=>btn(24+i*93,172,87,56,TOOL_LABEL[t],tool===t,()=>setTool(t),15));
+    lbl('Tool',160);['can','roller','stencil','marker'].forEach((t,i)=>btn(24+i*117,172,111,56,TOOL_LABEL[t],tool===t,()=>setTool(t),17));
     lbl('Stencil: '+STENCILS[stI][0],270);
     STENCILS.forEach((S,i)=>{const x=24+(i%5)*93,y=282+Math.floor(i/5)*93;reg(x,y,87,87,()=>{setStencil(i);if(tool!=='stencil')setTool('stencil')});mx.fillStyle=i===stI?'#c6ff00':'#262930';rr(x,y,87,87,12);mx.fill();
       const m=stMask(i);mx.save();mx.globalAlpha=1;const ic=mkCanvas(64,64),ix=ic.getContext('2d');ix.drawImage(m,0,0,64,64);ix.globalCompositeOperation='source-in';ix.fillStyle=i===stI?'#0a0a0a':'#f7f6f2';ix.fillRect(0,0,64,64);mx.drawImage(ic,x+11,y+11);mx.restore()});
     mx.fillStyle='#a3a8b0';mx.font='16px Archivo,sans-serif';mx.fillText('Hold left grip to hold the stencil. Press it flat to the',24,490);mx.fillText('wall, spray over it, then let go to peel it off.',24,512);
-    lbl('Can',556);['Undo','Flip','Peel tape','Buff wall'].forEach((t,i)=>btn(24+i*117,568,111,52,t,false,[undo,flip,peelTape,()=>buff()][i],16));
+    lbl('Can',556);['Undo','Flip','Buff wall'].forEach((t,i)=>btn(24+i*156,568,150,52,t,false,[undo,flip,()=>buff()][i]));
     lbl('Keep it',662);btn(24,674,150,52,'Save wall',false,()=>saveWall());btn(180,674,150,52,'Camera',false,()=>setCamMode(true));btn(336,674,150,52,'Time-lapse',false,makeTimelapse);
   }else if(bookTab===2){
     lbl('Projector · faint guide lines on the wall',160);btn(24,172,228,56,projOn?'Projector on':'Projector off',projOn,()=>setProj(!projOn));btn(260,172,110,56,'Dimmer',false,()=>projBrighter(-.12));btn(378,172,110,56,'Brighter',false,()=>projBrighter(.12));
@@ -907,8 +905,6 @@ function drawMenu(){regions.length=0;mx.clearRect(0,0,MW,MH);if(camMode){drawCam
     lbl('Moving',412);btn(24,424,228,50,'Joystick walk',moveMode==='smooth',()=>{moveMode='smooth';drawMenu()});btn(260,424,228,50,'Teleport',moveMode==='teleport',()=>{moveMode='teleport';drawMenu()});
     lbl('Hand · can in your '+(lefty?'left':'right')+' hand',506);btn(24,518,150,50,'Swap hands',lefty,()=>{lefty=!lefty;assignHands();drawMenu()});
     btn(180,518,150,50,'Tilt back',false,()=>{canTilt=Math.min(.8,canTilt+.12);handPivot.rotation.x=canTilt});btn(336,518,150,50,'Tilt forward',false,()=>{canTilt=Math.max(-.8,canTilt-.12);handPivot.rotation.x=canTilt});
-    lbl('Challenge · best here '+(ch.best[sceneI]||0)+(ch.last?' · last '+ch.last.score:''),600);btn(24,612,464,50,ch.on?'Challenge running: '+chText():'Start 3-minute challenge',ch.on,()=>{if(!ch.on)startChallenge()},17);
-    lbl(rep+' rep',704);btn(180,680,308,44,unlockAll?'Everything unlocked':'Unlock everything',unlockAll,()=>setUnlockAll(!unlockAll),15);
   }else{
     const can=lefty?'Left':'Right',pal=lefty?'right':'left';
     const rows=[['Left stick',moveMode==='smooth'?'Walk where you look':'Push forward to teleport'],['Right stick','Flick left or right to turn'],[can+' trigger','Spray or roll'],['A','Undo'],['B','Flip the can'],['Shake hand','Rattle the can'],['Y / click left stick','Open or close this menu'],['X','Next track'],[pal[0].toUpperCase()+pal.slice(1)+' grip','Hold a stencil'],['Point + trigger','Choose in this menu'],['Left trigger','Camera: take the shot']];
@@ -920,7 +916,7 @@ function drawMenu(){regions.length=0;mx.clearRect(0,0,MW,MH);if(camMode){drawCam
 
 /* ---------- screen UI ---------- */
 const capIcon=c=>`<svg viewBox="0 0 20 20"><ellipse cx="10" cy="10" rx="${Math.min(9,1.5+c.spread*14)}" ry="${c.ay?2:Math.min(9,1.5+c.spread*14)}" fill="currentColor" transform="rotate(${c.ay?-30:0} 10 10)"/></svg>`;
-$('#tools').innerHTML=[['can','Spray can'],['roller','Roller'],['stencil','Stencil'],['marker','Marker'],['tape','Tape']].map(([t,n])=>`<button data-tool="${t}">${n}</button>`).join('')+'<button id="peel">Peel tape</button>';
+$('#tools').innerHTML=[['can','Spray can'],['roller','Roller'],['stencil','Stencil'],['marker','Marker']].map(([t,n])=>`<button data-tool="${t}">${n}</button>`).join('');
 $('#spots').innerHTML=SC.map((s,i)=>`<button data-scene="${i}">${s.name}</button>`).join('');
 $('#caps').innerHTML=CAPS.map((c,i)=>`<button class="cap" data-cap="${i}" title="${c.tip}">${capIcon(c)}${c.name}</button>`).join('');
 $('#sets').innerHTML=SETS.map((s,i)=>`<button data-set="${i}">${s.short}</button>`).join('');
@@ -930,10 +926,10 @@ renderCans();
 $('#spotCards').innerHTML=SC.map((s,i)=>`<button class="spot" data-start="${i}" style="background:${s.grad}"><b>${s.name}</b><small>${s.when}</small></button>`).join('');
 function syncUI(){
   const pr=(sel,key,v)=>document.querySelectorAll(sel).forEach(b=>b.setAttribute('aria-pressed',String(b.dataset[key])===String(v)));
-  pr('[data-scene]','scene',sceneI);pr('[data-start]','start',sceneI);pr('[data-cap]','cap',capI);pr('[data-set]','set',setI);pr('[data-col]','col',colI);pr('[data-tool]','tool',tool);pr('[data-sten]','sten',stI);document.querySelectorAll('#dock [data-cap],#dock [data-set],#dock [data-tool],#dock [data-scene]').forEach(b=>{const d=b.dataset,lab=d.cap!==undefined?CAP_SHORT[+d.cap]:d.set!==undefined?SETS[+d.set].short:d.tool?TOOL_LABEL[d.tool]:SPOT_SHORT[+d.scene];const k=lockOf(lab);b.classList.toggle('locked',!!k);b.title=k?'Unlocks at '+k+' rep':''});pr('[data-proj]','proj',projOn?projI:-1);$('#projBtn').setAttribute('aria-pressed',projOn);$('#projs').hidden=!projOn;
+  pr('[data-scene]','scene',sceneI);pr('[data-start]','start',sceneI);pr('[data-cap]','cap',capI);pr('[data-set]','set',setI);pr('[data-col]','col',colI);pr('[data-tool]','tool',tool);pr('[data-sten]','sten',stI);pr('[data-proj]','proj',projOn?projI:-1);$('#projBtn').setAttribute('aria-pressed',projOn);$('#projs').hidden=!projOn;
   $('#caps').hidden=tool==='roller';$('#stens').hidden=tool!=='stencil';$('#mus').setAttribute('aria-pressed',musicOn);$('#npName').textContent=ac?nowName():'Press play';
-  const c=COLORS[colI],what=tool==='marker'?'Marker':tool==='tape'?'Masking tape':tool==='roller'?'Roller · 40 cm':tool==='can'?CAPS[capI].name+' cap · '+canStatus():tool==='stencil'?STENCILS[stI][0]+' stencil · '+CAPS[capI].name+' cap':CAPS[capI].name+' cap · '+Math.round(canDist*100)+' cm';
-  $('#info').innerHTML=`<span class="can" style="--c:${c[1]}"></span><span><b>${c[0]}</b> · ${what}<br><small>♪ ${esc(nowName())} · ${rep} rep</small></span>`;
+  const c=COLORS[colI],what=tool==='marker'?'Marker':tool==='roller'?'Roller · 40 cm':tool==='can'?CAPS[capI].name+' cap · '+canStatus():tool==='stencil'?STENCILS[stI][0]+' stencil · '+CAPS[capI].name+' cap':CAPS[capI].name+' cap · '+Math.round(canDist*100)+' cm';
+  $('#info').innerHTML=`<span class="can" style="--c:${c[1]}"></span><span><b>${c[0]}</b> · ${what}<br><small>♪ ${esc(nowName())}</small></span>`;
   drawMenu()}
 let toastT=0;function toast(t){const e=$('#toast');e.textContent=t;e.style.opacity=1;clearTimeout(toastT);toastT=setTimeout(()=>e.style.opacity=0,1500)}
 function setSet(j){setI=j;renderCans();syncUI()}
@@ -952,7 +948,7 @@ function setScene(i){
 function clampRig(){const b=SC[sceneI].bounds;rig.position.x=Math.max(b[0],Math.min(b[1],rig.position.x));rig.position.z=Math.max(b[2],Math.min(b[3],rig.position.z))}
 $('#dock').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;initAudio();const d=b.dataset;
   if(d.scene)setScene(+d.scene);else if(d.cap)setCap(+d.cap);else if(d.set)setSet(+d.set);else if(d.col)setColor(+d.col,true);else if(d.tool)setTool(d.tool);else if(d.sten)setStencil(+d.sten);else if(d.proj)setProjI(+d.proj);else if(b.id==='projBtn')setProj(!projOn);else if(b.id==='projDim')projBrighter(-.12);else if(b.id==='projBri')projBrighter(.12);
-  else if(b.id==='stick')toggleStick();else if(b.id==='undo')undo();else if(b.id==='flip')flip();else if(b.id==='clear')buff();else if(b.id==='save')saveWall();else if(b.id==='photo')takePhoto();else if(b.id==='peel')peelTape();else if(b.id==='chal'){if(!ch.on)startChallenge()}else if(b.id==='lapse')makeTimelapse();else if(b.id==='mus')toggleMusic();else if(b.id==='next')nextTrack();else if(b.id==='mymusic')openMusic();else if(b.id==='vr')enterVR();else if(b.id==='menu')showTitle()});
+  else if(b.id==='stick')toggleStick();else if(b.id==='undo')undo();else if(b.id==='flip')flip();else if(b.id==='clear')buff();else if(b.id==='save')saveWall();else if(b.id==='photo')takePhoto();else if(b.id==='lapse')makeTimelapse();else if(b.id==='mus')toggleMusic();else if(b.id==='next')nextTrack();else if(b.id==='mymusic')openMusic();else if(b.id==='vr')enterVR();else if(b.id==='menu')showTitle()});
 $('#spotCards').addEventListener('click',e=>{const b=e.target.closest('[data-start]');if(!b)return;setScene(+b.dataset.start)});
 $('#npNext').addEventListener('click',()=>{nextTrack()});
 
@@ -1046,7 +1042,7 @@ const PROJ=[
    arrow([[.08,.75],[.25,.2],[.45,.95],[.62,.4]]);arrow([[.3,.15],[.5,.05],[.7,.3],[.9,.2]]);arrow([[.55,.85],[.7,.95],[.85,.7],[.93,.55]]);
    const star=(cx,cy,r)=>{x.beginPath();for(let i=0;i<8;i++){const rr=i%2?r*.22:r,a=i*Math.PI/4-Math.PI/2;x.lineTo(cx*W+Math.cos(a)*rr,cy*H+Math.sin(a)*rr)}x.closePath();x.stroke()};
    star(.15,.25,H*.09);star(.8,.75,H*.12);star(.42,.62,H*.06);star(.95,.35,H*.05);star(.06,.45,H*.04)}],
- ['Layout grid',(x,W,H)=>{const s=SC[sceneI].surf,mW=s.W/PPM,mH=s.H/PPM,step=.5;x.strokeStyle=PROJ_LINE;x.fillStyle=PROJ_LINE;x.font=`600 ${Math.max(12,H*.03)|0}px Archivo,sans-serif`;
+ ['Layout grid',(x,W,H)=>{const R=projRect(),mW=R.w,mH=R.h,step=.5;x.strokeStyle=PROJ_LINE;x.fillStyle=PROJ_LINE;x.font=`600 ${Math.max(12,H*.03)|0}px Archivo,sans-serif`;
    for(let m=0;m<=mW+.001;m+=step){const px=m/mW*W;x.lineWidth=Math.abs(m-mW/2)<.01?Math.max(3,H*.006):Math.max(1.5,H*.002);x.globalAlpha=Math.abs(m%1)<.01?1:.6;x.beginPath();x.moveTo(px,0);x.lineTo(px,H);x.stroke();if(Math.abs(m%1)<.01)x.fillText(m+'m',px+4,H*.04)}
    for(let m=0;m<=mH+.001;m+=step){const py=H-m/mH*H;x.lineWidth=Math.abs(m-mH/2)<.01?Math.max(3,H*.006):Math.max(1.5,H*.002);x.globalAlpha=Math.abs(m%1)<.01?1:.6;x.beginPath();x.moveTo(0,py);x.lineTo(W,py);x.stroke()}x.globalAlpha=1}]];
 let projC=mkCanvas(2048,512),projTex=tex(projC);
@@ -1062,10 +1058,13 @@ const projRig=new THREE.Group();projRig.visible=false;scene.add(projRig);
  const col=new THREE.Mesh(new THREE.CylinderGeometry(.012,.012,.2,8),dk);col.position.y=1.1;projRig.add(col)}
 const beamGeo=new THREE.BufferGeometry();beamGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(12*3),3));
 const beam=new THREE.Mesh(beamGeo,new THREE.MeshBasicMaterial({color:0xcfeeff,transparent:true,opacity:.05,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false}));beam.frustumCulled=false;projRig.add(beam);
-function drawProj(){const s=SC[sceneI].surf;if(!s)return;const W=2048,H=Math.max(256,Math.round(2048*s.H/s.W));
+/* templates sit in a band you can reach: about 0.35 m to 2 m off the ground, never wider than 4 m */
+function projRect(){const s=SC[sceneI].surf,w=s.W/PPM,h=s.H/PPM,top=s.origin.y,bot=top-h;
+  const y0=Math.max(bot+.03,.35),y1=Math.min(top-.03,Math.max(y0+.6,2.0)),ph=Math.max(.5,y1-y0),pw=Math.min(w,4,ph*2.8),cx=s.origin.x+w/2;return{cx,cy:(y0+y1)/2,w:pw,h:ph}}
+function drawProj(){const s=SC[sceneI].surf;if(!s)return;const R=projRect(),W=2048,H=Math.max(256,Math.round(2048*R.h/R.w));
   if(projC.width!==W||projC.height!==H){projC=mkCanvas(W,H);projTex.dispose();projTex=tex(projC);projMat.map=projTex;projMat.needsUpdate=true}
   const x=projC.getContext('2d');x.clearRect(0,0,W,H);x.save();x.shadowColor='rgba(170,225,255,.9)';x.shadowBlur=H*.012;PROJ[projI][1](x,W,H);x.restore();projTex.needsUpdate=true}
-function placeProj(){const s=SC[sceneI].surf;if(!s)return;const w=s.W/PPM,h=s.H/PPM,cx=s.origin.x+w/2,cy=s.origin.y-h/2;
+function placeProj(){const s=SC[sceneI].surf;if(!s)return;const R=projRect(),w=R.w,h=R.h,cx=R.cx,cy=R.cy;
   projMesh.scale.set(w,h,1);projMesh.position.set(cx,cy,s.origin.z+.012);projMat.opacity=projBright;
   const S=SC[sceneI],sp=S.spawn.d,b=S.bounds;projRig.position.set(Math.max(b[0]+.3,Math.min(b[1]-.3,cx+Math.min(2.2,w*.3))),0,Math.min(b[3]-.3,s.origin.z+Math.max(2.6,sp[1]+.6)));projRig.lookAt(cx,0,s.origin.z);projRig.rotateY(Math.PI);
   projRig.updateMatrixWorld(true);const lp=new THREE.Vector3(.05,1.25,-.2).applyMatrix4(projRig.matrixWorld),inv=new THREE.Matrix4().copy(projRig.matrixWorld).invert(),P=beamGeo.attributes.position.array,
@@ -1184,7 +1183,7 @@ async function takePhoto(useCam){if(busy)return;busy=true;try{
   ox.font="900 34px 'Big Shoulders Display',sans-serif";ox.fillStyle='rgba(255,255,255,.85)';ox.textAlign='right';ox.fillText('MIDNIGHT BURNER · '+SC[sceneI].name.toUpperCase(),1890,1050);
   const [blob,thumb]=await Promise.all([toBlob(out,'image/jpeg',.92),thumbOf(out,480)]);const id2=Date.now();
   lastShot.getContext('2d').drawImage(out,0,0,lastShot.width,lastShot.height);hasShot=true;
-  await dbDo('photos','readwrite',o=>o.put({id:id2,scene:sceneI,time:id2,blob,thumb}));shutter(1);note('Photo saved to the gallery');if(window.addRep)addRep(2,'photo');if(camMode)drawMenu()}
+  await dbDo('photos','readwrite',o=>o.put({id:id2,scene:sceneI,time:id2,blob,thumb}));shutter(1);note('Photo saved to the gallery');if(camMode)drawMenu()}
   catch(e){note('Photos are not available in this browser')}finally{busy=false}}
 const vrWheelLike=null;
 function shutter(v){if(!ac)return;withLive(()=>{const t=ac.currentTime;nz(t,'bandpass',2400,1.5,.5*v,.05,master);nz(t+.07,'bandpass',1600,1.5,.4*v,.06,master)})}
@@ -1347,16 +1346,16 @@ async function makeTimelapse(){if(lapseBusy)return;const S=SC[sceneI];const mime
 
 /* ---- cans: paint runs out, pressure drops as you spray, shaking builds it back, caps can clog ---- */
 const cans={};let clogged=false,lowWarned=false,emptyWarned=false,shakeClears=0;
-const canOf=i=>cans[i]||(cans[i]={paint:1,pressure:.9});
-function onShake(){const c=canOf(colI);c.pressure=Math.min(1,c.pressure+.045);if(clogged&&++shakeClears>=6){clogged=false;shakeClears=0;note('Cap cleared')}}
-function freshCan(i){cans[i]={paint:1,pressure:.85};lowWarned=emptyWarned=false}
+const canOf=i=>cans[i]||(cans[i]={paint:1,pressure:1});
+function onShake(){const c=canOf(colI);c.pressure=Math.min(1,c.pressure+.06);if(clogged&&++shakeClears>=6){clogged=false;shakeClears=0;note('Cap cleared')}}
+function freshCan(i){cans[i]={paint:1,pressure:1};lowWarned=emptyWarned=false}
 function canFeel(pr,dt){if(pr<=.02||(tool!=='can'&&tool!=='stencil'))return pr;const c=canOf(colI),cap=CAPS[capI];
-  c.paint=Math.max(0,c.paint-cap.flow*pr*dt*.026);c.pressure=Math.max(.2,c.pressure-dt*.03*(.5+cap.flow*2));
-  if(!clogged&&Math.random()<dt*(.004+(1-c.pressure)*.03)){clogged=true;shakeClears=0;note('Cap clogged: flip the can (B / F) or shake it')}
+  c.paint=Math.max(0,c.paint-cap.flow*pr*dt*.011);c.pressure=Math.max(.3,c.pressure-dt*.0075*(.5+cap.flow*1.5));
+  if(!clogged&&Math.random()<dt*(.0008+Math.max(0,.6-c.pressure)*.02)){clogged=true;shakeClears=0;note('Cap clogged: flip the can (B / F) or shake it')}
   if(c.paint<=0){if(!emptyWarned){emptyWarned=true;note('Can empty: pick the colour again for a fresh can')}return 0}
   if(c.paint<.12&&!lowWarned){lowWarned=true;note('Running low on '+COLORS[colI][0])}
-  let k=Math.max(.15,Math.min(1,(c.pressure-.2)/.55));if(c.paint<.12)k*=.5+c.paint*4;if(clogged)k*=.25;
-  const sputter=(1-k)*.55;if(Math.random()<sputter)return .001;return pr*k}
+  let k=Math.max(.4,Math.min(1,(c.pressure-.3)/.35));if(c.paint<.12)k*=.5+c.paint*4;if(clogged)k*=.25;
+  const sputter=(1-k)*.35;if(Math.random()<sputter)return .001;return pr*k}
 function batchTick(dt,pr,rollAt){const painting=pr>.02||!!rollAt;autoT+=dt;if(autoT>60&&!stroke&&!painting){autoT=0;autosave()}drySurfaces(dt);lapseTick(dt,painting);
   const rg=right&&right.userData.src&&right.userData.src.gamepad;glovesTick(rg&&rg.buttons[0]?rg.buttons[0].value:0)}
 {const ob=buff;buff=function(i,quiet){ob(i,quiet);const k=i===undefined?sceneI:i;resetLapse(k);if(SC[k].surf)resetGloss(SC[k].surf);if(!quiet)wallChanged=true}}
@@ -1368,23 +1367,11 @@ window.__stage='batch2';
 /* ---------- batch 2: new spots, life, boombox, marker, tape, special paints, challenge, rep ---------- */
 
 const SAFE=/[?&]safe/.test(location.search);
-/* ---- reputation and unlocks ---- */
-let rep=0,unlockAll=false;try{rep=+localStorage.getItem('mb-rep')||0;unlockAll=localStorage.getItem('mb-unlock')==='1'}catch(e){}
-const LOCKS={'NY fat':10,'Neon':15,'Marker':20,'Flat':25,'Tape':30,'Special':40,'Shops':50,'Tunnel':80};
-const CAP_SHORT=['Needle','Skinny','Soft','Stock','Fat','NY fat','S. fat','Calli','Flat'],TOOL_LABEL={can:'Spray can',roller:'Roller',stencil:'Stencil',marker:'Marker',tape:'Tape'},SPOT_SHORT=['Hall','Alley','Train','Roof','Shops','Tunnel'];
-const lockOf=label=>unlockAll?0:(LOCKS[label]&&rep<LOCKS[label]?LOCKS[label]:0);
-function addRep(n,why){if(!n)return;const before=rep;rep+=n;try{localStorage.setItem('mb-rep',rep)}catch(e){}
-  const newly=Object.entries(LOCKS).filter(([k,v])=>before<v&&rep>=v).map(([k])=>k);note('+'+n+' rep'+(why?' · '+why:'')+(newly.length?' · unlocked: '+newly.join(', '):''));syncUI();renderRep()}
-window.addRep=addRep;
-function setUnlockAll(on){unlockAll=on;try{localStorage.setItem('mb-unlock',on?'1':'0')}catch(e){}syncUI();renderRep()}
-function renderRep(){const r=$('#repChip');if(r)r.textContent=rep+' rep'+(unlockAll?' · all unlocked':'');document.querySelectorAll('[data-start]').forEach(b=>{const k=lockOf(SPOT_SHORT[+b.dataset.start]);b.classList.toggle('locked',!!k);b.dataset.lock=k?k+' rep':''})}
-{const os=setScene;setScene=function(i,force){const k=lockOf(SPOT_SHORT[i]);if(k&&!force){note(SC[i].name+' unlocks at '+k+' rep');return}os(i)}}
-{const oc=setCap;setCap=function(i){const k=lockOf(CAP_SHORT[i]);if(k){note(CAPS[i].name+' unlocks at '+k+' rep');return}oc(i)}}
-{const ost=setSet;setSet=function(j){const k=lockOf(SETS[j].short);if(k){note(SETS[j].name+' unlocks at '+k+' rep');return}ost(j)}}
-{const ot=setTool;setTool=function(t){const k=lockOf(TOOL_LABEL[t]);if(k){note(TOOL_LABEL[t]+' unlocks at '+k+' rep');return}ot(t);
-  handCan.visible=viewCan.visible=t==='can'||t==='stencil'||t==='tape';handMarker.visible=viewMarker.visible=t==='marker';tapeRoll.visible=t==='tape';if(t==='marker'&&!renderer.xr.isPresenting)toast('Marker: touch the wall and draw');if(t==='tape'&&!renderer.xr.isPresenting)toast('Tape: drag a straight line on the wall, peel it later')}}
-let repT=0;function repTick(dt,painting){if(painting){repT+=dt;if(repT>=20){repT=0;rep++;try{localStorage.setItem('mb-rep',rep)}catch(e){}renderRep()}}}
-
+/* everything is available: no rep, no locks */
+const CAP_SHORT=['Needle','Skinny','Soft','Stock','Fat','NY fat','S. fat','Calli','Flat'],TOOL_LABEL={can:'Spray can',roller:'Roller',stencil:'Stencil',marker:'Marker'},SPOT_SHORT=['Hall','Alley','Train','Roof','Shops','Tunnel'];
+const lockOf=()=>0;window.addRep=function(){};function renderRep(){}
+{const ot=setTool;setTool=function(t){if(!TOOL_LABEL[t])t='can';ot(t);
+  handCan.visible=viewCan.visible=t==='can'||t==='stencil';handMarker.visible=viewMarker.visible=t==='marker';if(t==='marker'&&!renderer.xr.isPresenting)toast('Marker: hold the button and draw on the wall')}}
 /* ---- special paints: chrome finishes and fluorescent glow ---- */
 const GLOW={};
 {const SP={name:'Chrome and fluoro',short:'Special',c:[['Chrome silver','#dfe3e8'],['Gold chrome','#e8c15a'],['Copper chrome','#c8754a'],['Black chrome','#3a3d42'],['Fluoro pink','#ff2fa0'],['Fluoro green','#39ff14'],['Fluoro orange','#ff6a00'],['Fluoro yellow','#e6ff00'],['Fluoro blue','#1fb6ff'],['Fluoro violet','#b026ff'],['Glow white','#eafff4'],['Fluoro red','#ff1e3c']]};
@@ -1405,34 +1392,12 @@ function makeMarker(){const g=new THREE.Group(),body=new THREE.Mesh(new THREE.Cy
   const p=new THREE.Object3D();p.position.z=-.112;g.add(body,band,tip,p);g.userData={band,tip:p};return g}
 const handMarker=makeMarker();handMarker.visible=false;handPivot.add(handMarker);const mkGlove=makeFistGlove();mkGlove.position.set(0,-.01,.02);handMarker.add(mkGlove);
 const viewMarker=makeMarker();viewMarker.visible=false;viewMarker.position.set(-.02,.06,.1);viewPivot.add(viewMarker);
-const tapeRoll=new THREE.Mesh(new THREE.TorusGeometry(.03,.012,10,24),std({color:0xd9cba4,roughness:.9}));tapeRoll.position.set(.05,-.04,0);tapeRoll.visible=false;handPivot.add(tapeRoll);
 {const oc=setCanColour;setCanColour=function(i){oc(i);handMarker.userData.band.material=viewMarker.userData.band.material=paintMats[i]}}
 let markAt=null,marking=false;
-function markStep(s,st,x,y,col){const r=.0065*s.ppm,L=st.last;st.last={x,y};const sx=L?L.x:x,sy=L?L.y:y,d=Math.hypot(x-sx,y-sy);if(d>s.ppm*.3)return;const n=Math.max(1,Math.ceil(d/(r*.4)));
+function markStep(s,st,x,y,col){const r=.0065*PPM,L=st.last;st.last={x,y};const sx=L?L.x:x,sy=L?L.y:y,d=Math.hypot(x-sx,y-sy);if(d>PPM*.3)return;const n=Math.max(1,Math.ceil(d/(r*.4)));
   for(let i=1;i<=n;i++){const t=i/n,px=sx+(x-sx)*t,py=sy+(y-sy)*t;pDisc(s,px,py,r*1.3,col,.12);pDisc(s,px,py,r,col,.92)}if(s.wetMark)s.wetMark(x,y,r*1.4,r*1.4,col)}
-function markerVR(s,gp){handMarker.userData.tip.getWorldPosition(camW);const dz=camW.z-s.origin.z;if(dz<.03&&dz>-.15&&inWall(s,camW)){markAt={x:(camW.x-s.origin.x)*PPM,y:(s.origin.y-camW.y)*PPM};buzz(gp,.12,15)}}
+function markerVR(s,gp,trig){handMarker.userData.tip.getWorldPosition(camW);const dz=camW.z-s.origin.z;if((dz<.035||(trig>.3&&dz<.12))&&dz>-.15&&inWall(s,camW)){markAt={x:(camW.x-s.origin.x)*PPM,y:(s.origin.y-camW.y)*PPM};buzz(gp,.12,15)}}
 function markerTick(s){if(markAt){if(!marking){endStroke();beginStroke(s);marking=true}markStep(s,stroke.st,markAt.x,markAt.y,COLORS[colI][1])}else if(marking){endStroke();marking=false}}
-
-/* ---- masking tape: lay straight strips, paint over them, peel to reveal crisp edges ---- */
-const tapes=[];let tapeStart=null,tapeEnd=null;const TAPE_W=.025;
-const tapePrev=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({color:0xe8dcb4,transparent:true,opacity:.7,depthWrite:false}));tapePrev.visible=false;scene.add(tapePrev);
-function tapeRect(s,a,b){const w=TAPE_W*s.ppm,dx=b.x-a.x,dy=b.y-a.y;if(Math.abs(dx)>=Math.abs(dy)){const x0=Math.min(a.x,b.x),x1=Math.max(a.x,b.x);return{x:x0,y:a.y-w/2,w:Math.max(2,x1-x0),h:w}}const y0=Math.min(a.y,b.y),y1=Math.max(a.y,b.y);return{x:a.x-w/2,y:y0,w,h:Math.max(2,y1-y0)}}
-function regionSnap(s,r){const x=Math.round(r.x),y=Math.round(r.y),w=Math.max(1,Math.round(r.w)),h=Math.max(1,Math.round(r.h));
-  if(!s.gpu){const c=mkCanvas(w,h),cx=c.getContext('2d');for(const t of s.tiles)cx.drawImage(t.c,t.x-x,t.y-y);return{x,y,w,h,c}}
-  gpuFlush();const rt=newRT(w,h),cam=new THREE.OrthographicCamera(x,x+w,-y,-(y+h),-1,1);
-  for(const t of s.tiles){if(t.x>x+w||t.x+t.w<x||t.y>y+h||t.y+t.h<y)continue;blitMat.uniforms.tMap.value=t.rt.texture;blitMat.uniforms.uOpaque.value=1;blitMesh.scale.set(t.w,t.h,1);blitMesh.position.set(t.x+t.w/2,-(t.y+t.h/2),0);rtRender(blitScene,cam,rt)}return{x,y,w,h,rt}}
-function regionRestore(s,snap){if(!s.gpu){tilesIn(s,snap.x,snap.y,snap.x+snap.w,snap.y+snap.h,t=>{t.ctx.globalAlpha=1;t.ctx.drawImage(snap.c,snap.x-t.x,snap.y-t.y);t.dirty=true});return}
-  gpuFlush();blitMat.uniforms.tMap.value=snap.rt.texture;blitMat.uniforms.uOpaque.value=1;blitMesh.scale.set(snap.w,snap.h,1);blitMesh.position.set(snap.x+snap.w/2,-(snap.y+snap.h/2),0);
-  tilesIn(s,snap.x,snap.y,snap.x+snap.w,snap.y+snap.h,t=>rtRender(blitScene,t.cam,t.rt));snap.rt.dispose()}
-function layTape(s,a,b){const r=tapeRect(s,a,b);if(r.w<s.ppm*.03&&r.h<s.ppm*.03)return;endStroke();const snap=regionSnap(s,r);tapes.push({s,snap});
-  pRect(s,r.x,r.y,r.w,r.h,'#d9cba4',1);pRect(s,r.x,r.y,r.w,Math.min(r.h,2),'#bfb08a',.8);pRect(s,r.x,r.y+r.h-2,r.w,2,'#f2e9cf',.6);gpuFlush();clack(.25);wallChanged=true}
-function peelTape(){if(!tapes.length){note('No tape on the wall');return}gpuFlush();for(let i=tapes.length-1;i>=0;i--){const t=tapes[i];regionRestore(t.s,t.snap)}tapes.length=0;wallChanged=true;rattle(2);note('Tape peeled')}
-function tapeVR(s,trig){if(tool!=='tape')return;raycaster.set(origin,dirV);raycaster.far=1.5;const h=raycaster.intersectObjects(s.meshes)[0];const p=h?{x:h.object.userData.t.x+h.uv.x*h.object.userData.t.w,y:h.object.userData.t.y+(1-h.uv.y)*h.object.userData.t.h}:null;
-  if(trig>.5&&!tapeStart&&p){tapeStart=p;tapeEnd=p}else if(trig>.5&&tapeStart&&p){tapeEnd=p}else if(trig<.3&&tapeStart){layTape(s,tapeStart,tapeEnd||tapeStart);tapeStart=tapeEnd=null}}
-function tapeDesk(s,h){if(tool!=='tape')return;const p=h?{x:h.object.userData.t.x+h.uv.x*h.object.userData.t.w,y:h.object.userData.t.y+(1-h.uv.y)*h.object.userData.t.h}:null;
-  if(mDown&&!looking&&p){if(!tapeStart)tapeStart=p;tapeEnd=p}else if(!mDown&&tapeStart){layTape(s,tapeStart,tapeEnd||tapeStart);tapeStart=tapeEnd=null}}
-function tapePreview(s){if(!tapeStart||!tapeEnd){tapePrev.visible=false;return}const r=tapeRect(s,tapeStart,tapeEnd);tapePrev.visible=true;tapePrev.scale.set(r.w/PPM,r.h/PPM,1);tapePrev.position.set(s.origin.x+(r.x+r.w/2)/PPM,s.origin.y-(r.y+r.h/2)/PPM,s.origin.z+.01)}
-{const ob=buff;buff=function(i,q){if((i===undefined?sceneI:i)===sceneI){for(const t of tapes)if(t.snap.rt)t.snap.rt.dispose();tapes.length=0}ob(i,q)}}
 
 /* ---- two new spots ---- */
 function drawShutter(c,W,H,p){const g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,'#a1a6ab');g.addColorStop(1,'#7a8086');c.fillStyle=g;c.fillRect(0,0,W,H);
@@ -1520,37 +1485,81 @@ function spatialTick(){if(!ac||!musicBus)return;if(!musicPan){try{musicPan=ac.cr
   if(S.boom&&analyser){analyser.getByteFrequencyData(eqD);const v=(eqD[1]+eqD[2])/510;for(const c of S.boom.userData.cones)c.scale.set(1+v*.18,1,1+v*.18);S.boom.userData.led.material.color.setHSL(.22,1,.3+v*.4)}}
 function boomHit(rc){const h=rc.intersectObjects(boomMeshes)[0];return h&&h.object.visible?h:null}
 
-/* ---- challenge: three minutes, a security light sweeps the wall, don't get caught spraying ---- */
-const ch={on:false,t:0,len:180,spotted:0,cols:new Set(),base:null,sweepT:12,sweepX:-1,cool:0,last:null};
-const secLight={intensity:0,position:new THREE.Vector3(),target:{position:new THREE.Vector3(),updateMatrixWorld(){}}};
-const secPool=new THREE.Mesh(new THREE.CircleGeometry(1.1,32),new THREE.MeshBasicMaterial({color:0xdfeaff,transparent:true,opacity:.22,blending:THREE.AdditiveBlending,depthWrite:false,fog:false}));secPool.visible=false;scene.add(secPool);
-const secCone=new THREE.Mesh(new THREE.ConeGeometry(1.4,9,24,1,true),new THREE.MeshBasicMaterial({color:0xe8f2ff,transparent:true,opacity:.07,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide,fog:false}));secCone.visible=false;scene.add(secCone);
-try{ch.best=JSON.parse(localStorage.getItem('mb-best')||'{}')}catch(e){ch.best={}}
-function startChallenge(){if(!started){note('Start painting first');return}const s=SC[sceneI].surf;buff();gpuFlush();ch.base=wallThumb(s,160);ch.on=true;ch.t=ch.len;ch.spotted=0;ch.cols=new Set();ch.sweepT=10;ch.sweepX=-1;bookOn=false;
-  note('Challenge: 3 minutes. Hide from the light when it sweeps!');rattle(4);syncUI()}
-function endChallenge(){ch.on=false;secLight.intensity=0;secCone.visible=secPool.visible=false;const s=SC[sceneI].surf,now=wallThumb(s,160),a=ch.base.getContext('2d').getImageData(0,0,now.width,now.height).data,b=now.getContext('2d').getImageData(0,0,now.width,now.height).data;
-  let changed=0;for(let i=0;i<a.length;i+=4)if(Math.abs(a[i]-b[i])+Math.abs(a[i+1]-b[i+1])+Math.abs(a[i+2]-b[i+2])>40)changed++;const cov=changed/(a.length/4);
-  const score=Math.max(0,Math.round(cov*1000+Math.min(8,ch.cols.size)*25-ch.spotted*60));const best=ch.best[sceneI]||0;if(score>best){ch.best[sceneI]=score;try{localStorage.setItem('mb-best',JSON.stringify(ch.best))}catch(e){}}
-  ch.last={score,cov:Math.round(cov*100),cols:ch.cols.size,spotted:ch.spotted,best:Math.max(best,score)};note('Time! Score '+score+' · '+ch.last.cov+'% covered · spotted '+ch.spotted+'x');addRep(5+Math.round(score/10),'challenge');syncUI()}
-function challengeTick(dt,pr){if(!ch.on)return;ch.t-=dt;if(pr>.02)ch.cols.add(colI);const s=SC[sceneI].surf,w=s.W/PPM,x0=s.origin.x,ztop=s.origin.y;
-  ch.sweepT-=dt;if(ch.sweepX<0&&ch.sweepT<=0){ch.sweepX=0;ch.sweepT=rnd(14,22);sfx(t=>{const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=440;g.gain.setValueAtTime(.04,t);g.gain.setValueAtTime(0,t+.15);o.connect(g);g.connect(master);o.start(t);o.stop(t+.2)})}
-  if(ch.sweepX>=0){ch.sweepX+=dt/5;const bx=x0+w*ch.sweepX;secLight.intensity=14;secLight.position.set(bx-1.5,ztop+4.5,s.origin.z+6);secLight.target.position.set(bx,1.5,s.origin.z);secLight.target.updateMatrixWorld();
-    secCone.visible=true;secPool.visible=true;secPool.position.set(bx,1.5,s.origin.z+.02);secCone.position.set(bx-.75,ztop+2.6,s.origin.z+3);secCone.lookAt(secLight.position);secCone.rotateX(Math.PI/2);
-    camera.getWorldPosition(tmp);ch.cool-=dt;if(pr>.02&&Math.abs(tmp.x-bx)<1.1&&tmp.z<s.origin.z+3.2&&ch.cool<=0){ch.spotted++;ch.cool=2;note('Spotted! Stop spraying when the light comes');sfx(t=>{for(let k=0;k<3;k++){const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=k%2?660:880;g.gain.setValueAtTime(.06,t+k*.18);g.gain.setValueAtTime(0,t+k*.18+.14);o.connect(g);g.connect(master);o.start(t+k*.18);o.stop(t+k*.18+.15)}})}
-    if(ch.sweepX>1){ch.sweepX=-1;secLight.intensity=0;secCone.visible=secPool.visible=false}}
-  if(ch.t<=0)endChallenge()}
-const chText=()=>{const m=Math.max(0,Math.ceil(ch.t)),mm=Math.floor(m/60),ss=String(m%60).padStart(2,'0');return mm+':'+ss+' left · spotted '+ch.spotted}
+const ch={on:false,best:{}},chText=()=>'';
 let chUiT=0;
 function batch2Tick(dt,pr,painting){try{batch2Inner(dt,pr,painting)}catch(e){if(!b2Err){b2Err=1;reportErr(e)}}}let b2Err=0;
-function batch2Inner(dt,pr,painting){const S=SC[sceneI];if(S.life)for(const f of S.life)f(dt);spatialTick();repTick(dt,painting);challengeTick(dt,pr);if(S.surf){markerTick(S.surf);tapePreview(S.surf)}
-  if(ch.on){chUiT-=dt;if(chUiT<=0){chUiT=1;if(renderer.xr.isPresenting)drawHud();else{const i=$('#info');if(i){let c=i.querySelector('.chal');if(!c){c=document.createElement('b');c.className='chal';i.appendChild(c)}c.textContent=' · '+chText()}}}}
-  else{const c=document.querySelector('#info .chal');if(c)c.remove()}}
+function batch2Inner(dt,pr,painting){const S=SC[sceneI];if(S.life)for(const f of S.life)f(dt);spatialTick();if(S.surf)markerTick(S.surf)}
 
 
 /* safe mode (?safe): no wall gloss or glow maps, no per-frame extras, no autosave thumbnails */
 if(SAFE){console.log('Midnight Burner: safe mode');initSurfaceMaps=function(){};wetMark=function(){};composeSurface=function(){};drySurfaces=function(){};resetGloss=function(){};
   batchTick=function(){};batch2Inner=function(){};autosave=function(){};lapseTick=function(){};
   for(const S of SC)if(S.surf)for(const m of S.surf.meshes){m.material.roughnessMap=m.material.metalnessMap=m.material.emissiveMap=null;m.material.needsUpdate=true}}
+
+window.__stage='hands';
+/* ---------- hands that follow your fingers, and a tablet you pick up and put down ---------- */
+const handMat=std({color:0x1b1c21,roughness:.72}),handCuffMat=std({color:0xc6ff00,roughness:.5});
+/* one finger bone: a tapered tube pointing along -Z from its joint */
+function bone(len,r0,r1){const g=new THREE.Group(),m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r0,len,10),handMat);m.rotation.x=-Math.PI/2;m.position.z=-len/2;g.add(m);
+  g.add(new THREE.Mesh(new THREE.SphereGeometry(r0*1.03,10,8),handMat));const end=new THREE.Group();end.position.z=-len;g.add(end);
+  const tip=new THREE.Mesh(new THREE.SphereGeometry(r1,10,8),handMat);end.add(tip);g.userData.end=end;return g}
+function chain(lens,r){const out=[];let parent=null,rr=r;for(const L of lens){const b=bone(L,rr,rr*.88);if(parent)parent.userData.end.add(b);out.push(b);parent=b;rr*=.88}return out}
+/* side: +1 right hand, -1 left hand. Built in the controller's grip space: fingers forward (-Z), thumb up (+Y), palm facing the middle */
+function makeHand(side){const h=new THREE.Group();
+  const palm=new THREE.Mesh(new THREE.SphereGeometry(1,18,14),handMat);palm.scale.set(.017,.045,.048);palm.position.set(side*.03,-.004,.018);h.add(palm);
+  const back=new THREE.Mesh(new THREE.BoxGeometry(.012,.072,.07),handMat);back.position.set(side*.038,-.004,.014);h.add(back);
+  const fingers=[];const F=[[.03,[.042,.026,.02],.0093],[.01,[.046,.029,.021],.0097],[-.01,[.043,.027,.02],.0093],[-.029,[.034,.021,.018],.0082]];
+  for(const [y,lens,r] of F){const c=chain(lens,r);c[0].position.set(side*.031,y-.004,-.024);h.add(c[0]);fingers.push(c)}
+  const thumbRoot=new THREE.Group();thumbRoot.position.set(side*.018,.034,.022);thumbRoot.rotation.set(.45,-side*.75,0);h.add(thumbRoot);
+  const thumb=chain([.034,.027,.021],.0108);thumbRoot.add(thumb[0]);
+  const wrist=new THREE.Mesh(new THREE.CylinderGeometry(.028,.031,.05,16),handMat);wrist.rotation.x=Math.PI/2;wrist.position.set(side*.034,-.006,.075);h.add(wrist);
+  const cuff=new THREE.Mesh(new THREE.CylinderGeometry(.0325,.0325,.018,18),handCuffMat);cuff.rotation.x=Math.PI/2;cuff.position.set(side*.034,-.006,.098);h.add(cuff);
+  h.traverse(o=>{if(o.isMesh)o.castShadow=false});
+  h.userData={side,fingers,thumb,cur:{i:.1,g:.1,t:.1}};poseHand(h,.1,.1,.1,1);return h}
+/* bend the fingers: i = index (trigger), g = the other three (grip), t = thumb */
+function poseHand(h,i,g,t,k){const u=h.userData,c=u.cur,s=u.side;c.i+=(i-c.i)*k;c.g+=(g-c.g)*k;c.t+=(t-c.t)*k;
+  u.fingers.forEach((f,n)=>{const v=.12+(n?c.g:c.i)*.95;f[0].rotation.y=s*v*1.25;f[1].rotation.y=s*v*1.55;f[2].rotation.y=s*v*1.05});
+  const tv=.1+c.t*.8;u.thumb[0].rotation.y=s*tv*.6;u.thumb[1].rotation.y=s*tv*.9;u.thumb[2].rotation.y=s*tv*.7}
+const leftHand=makeHand(-1),freeRight=makeHand(1);leftHand.visible=freeRight.visible=false;
+const btnVal=(gp,i)=>gp&&gp.buttons[i]?gp.buttons[i].value||(gp.buttons[i].pressed?1:0):0,btnTouch=(gp,i)=>!!(gp&&gp.buttons[i]&&(gp.buttons[i].touched||gp.buttons[i].pressed));
+const thumbDown=gp=>btnTouch(gp,3)||btnTouch(gp,4)||btnTouch(gp,5);
+
+/* the can glove: index finger presses the nozzle with the trigger */
+glovesTick=function(trig){canGlove.userData.idx.rotation.x=-trig*.38;viewGlove.userData.idx.rotation.x=-trig*.38;leftGlove.visible=false};
+
+/* ---- the tablet: a real object. Squeeze the left grip next to it to pick it up, let go to leave it floating there ---- */
+const TAB_S=.72;let tabHeld=false,tabWasOn=false,tabBlend=1,tabGPrev=0,tabNear=false;
+const tabHoldM=new THREE.Matrix4().compose(new THREE.Vector3(TAB_W*TAB_S/2-.012,.035,-.014),new THREE.Quaternion().setFromEuler(new THREE.Euler(-.42,0,0)),new THREE.Vector3(1,1,1));
+const tabTP=new THREE.Vector3(),tabTQ=new THREE.Quaternion(),tabTS=new THREE.Vector3(),tabTM=new THREE.Matrix4(),tabLV=new THREE.Vector3();
+/* a green frame lights up when your hand is close enough to grab it */
+const tabGlow=new THREE.Mesh(new THREE.PlaneGeometry(TAB_W+.03,TAB_H+.03),new THREE.MeshBasicMaterial({color:0xc6ff00,transparent:true,opacity:.35,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+tabGlow.position.z=-.011;tabGlow.visible=false;tablet.add(tabGlow);
+/* a slim case on the back so it reads as a tablet from every side */
+{const back=new THREE.Mesh(new THREE.PlaneGeometry(TAB_W-.01,TAB_H-.01),std({color:0x2a2d33,metalness:.6,roughness:.35}));back.position.z=-.0105;back.rotation.y=Math.PI;tablet.add(back);
+ const lens=new THREE.Mesh(new THREE.CircleGeometry(.009,20),new THREE.MeshBasicMaterial({color:0x0b0c0f}));lens.position.set(-TAB_W/2+.03,TAB_H/2-.03,-.0108);lens.rotation.y=Math.PI;tablet.add(lens)}
+function handNearTablet(grip){grip.getWorldPosition(tabLV);tablet.worldToLocal(tabLV);const m=.06/TAB_S;return Math.abs(tabLV.x)<TAB_W/2+m&&Math.abs(tabLV.y)<TAB_H/2+m&&Math.abs(tabLV.z)<.09/TAB_S}
+function summonTablet(){camera.getWorldPosition(tmp);camera.getWorldQuaternion(hudQ);fw.set(0,0,-1).applyQuaternion(hudQ);fw.y=0;if(fw.lengthSq()<1e-4)fw.set(0,0,-1);fw.normalize();
+  tablet.position.copy(tmp).addScaledVector(fw,.42);tablet.position.y-=.22;tabM.lookAt(tmp,tablet.position,tabUp);tabQ.setFromRotationMatrix(tabM);tablet.quaternion.copy(tabQ);tablet.rotateX(-.25);tabHeld=false}
+placeTablet=function(dt,grip){const gp=left&&left.userData.src&&left.userData.src.gamepad,g=btnVal(gp,1);
+  if(bookOn&&!tabWasOn)summonTablet();tabWasOn=bookOn;
+  if(!bookOn){tabHeld=false;tabletK=Math.max(0,tabletK-dt*6)}else tabletK=Math.min(1,tabletK+dt*6);
+  tablet.visible=tabletK>.001;const e=1-Math.pow(1-tabletK,3);tablet.scale.setScalar(TAB_S*(.85+.15*e));if(!tablet.visible){tabGlow.visible=false;tabGPrev=g;return}
+  tabNear=!tabHeld&&handNearTablet(grip);
+  if(!tabHeld&&tabNear&&g>.6&&tabGPrev<=.6&&!sten.held){tabHeld=true;tabBlend=0;buzz(gp,.5,40);clack(.25)}
+  else if(tabHeld&&g<.35){tabHeld=false;buzz(gp,.2,20)}
+  tabGPrev=g;tabGlow.visible=tabNear&&!tabHeld;
+  if(tabHeld){tabTM.multiplyMatrices(grip.matrixWorld,tabHoldM);tabTM.decompose(tabTP,tabTQ,tabTS);tabBlend=Math.min(1,tabBlend+dt*9);
+    if(tabBlend<1){tablet.position.lerp(tabTP,tabBlend);tablet.quaternion.slerp(tabTQ,tabBlend)}else{tablet.position.copy(tabTP);tablet.quaternion.copy(tabTQ)}}};
+/* hands follow the controllers; the left one wraps the tablet's edge while you hold it */
+let handsOn=false;
+function handsTick(dt){const xr=renderer.xr.isPresenting,k=Math.min(1,dt*18);
+  if(!xr){if(handsOn){leftHand.visible=freeRight.visible=false;handsOn=false}return}handsOn=true;
+  if(left&&left.userData.grip){if(leftHand.parent!==left.userData.grip)left.userData.grip.add(leftHand);leftHand.visible=true;const gp=left.userData.src&&left.userData.src.gamepad;
+    if(tabHeld)poseHand(leftHand,.62,.66,.22,k);else if(sten.held)poseHand(leftHand,.7,.8,.5,k);else poseHand(leftHand,btnVal(gp,0),btnVal(gp,1),thumbDown(gp)?.75:.05,k)}
+  else leftHand.visible=false;
+  freeRight.visible=false}
+/* nothing gets lost: changing spot or leaving VR puts the tablet away */
+{const os=setScene;setScene=function(i,f){tabHeld=false;if(bookOn){bookOn=false;tabWasOn=false;tabletK=0;tablet.visible=false}os(i,f)}}
 
 window.__stage='loop';
 /* ---------- WebXR ---------- */
@@ -1573,7 +1582,7 @@ const hudC=mkCanvas(512,96),hudX=hudC.getContext('2d'),hudT=tex(hudC);
 const hud=new THREE.Mesh(new THREE.PlaneGeometry(.2,.0375),new THREE.MeshBasicMaterial({map:hudT,transparent:true,depthTest:false,fog:false}));hud.renderOrder=20;hud.visible=false;scene.add(hud);
 function drawHud(){const x=hudX;x.clearRect(0,0,512,96);x.fillStyle='rgba(10,11,14,.78)';x.beginPath();x.moveTo(48,4);x.arcTo(508,4,508,92,44);x.arcTo(508,92,4,92,44);x.arcTo(4,92,4,4,44);x.arcTo(4,4,508,4,44);x.fill();
   x.fillStyle='#c6ff00';x.beginPath();x.arc(52,48,26,0,7);x.fill();x.fillStyle='#0a0a0a';x.font="900 34px 'Big Shoulders Display',sans-serif";x.textAlign='center';x.fillText('Y',52,60);
-  x.fillStyle='#f7f6f2';x.font='600 32px Archivo,sans-serif';x.textAlign='left';x.fillText(vrNoteT>0?vrNote:SAFE&&hudAge<8?'Safe mode':ch.on?chText():bookOn?'Press Y to close menu':'Press Y to open menu',96,59);hudT.needsUpdate=true}
+  x.fillStyle='#f7f6f2';x.font='600 32px Archivo,sans-serif';x.textAlign='left';x.fillText(vrNoteT>0?vrNote:SAFE&&hudAge<8?'Safe mode':bookOn?'Press Y to put the tablet away':'Press Y to open menu',96,59);hudT.needsUpdate=true}
 /* ---------- desktop input ---------- */
 const mouse=new THREE.Vector2(),keysDown={};let mDown=false,looking=false,lx=0,ly=0,yaw=0,pitch=0,shift=false,mxp=0,myp=0,lastHit=null;
 const raycaster=new THREE.Raycaster();
@@ -1592,7 +1601,7 @@ addEventListener('keydown',e=>{if(!started)return;keysDown[e.code]=true;
   if(e.code==='KeyQ'&&!e.repeat&&!wheel)openWheel('cap',mxp||innerWidth/2,myp||innerHeight/2);
   else if(/^Digit[1-9]$/.test(e.code))setCap(+e.code.slice(5)-1);
   else if(e.code==='BracketRight'||e.code==='BracketLeft'){const d=e.code==='BracketRight'?1:-1;if(tool==='stencil')setStencil((stI+d+STENCILS.length)%STENCILS.length);else{const it=SETS[setI].items,k=it.indexOf(colI);setColor(it[((k<0?0:k)+d+it.length)%it.length],true)}}
-  else if(e.code==='KeyE'&&!e.repeat)toggleStick();else if(e.code==='KeyP'&&!e.repeat)takePhoto();else if(e.code==='KeyT'&&!e.repeat)makeTimelapse();else if(e.code==='KeyG'&&!e.repeat)peelTape();else if(e.code==='KeyS'&&(e.ctrlKey||e.metaKey)){e.preventDefault();saveWall()}else if(e.code==='KeyN')nextTrack();
+  else if(e.code==='KeyE'&&!e.repeat)toggleStick();else if(e.code==='KeyP'&&!e.repeat)takePhoto();else if(e.code==='KeyT'&&!e.repeat)makeTimelapse();else if(e.code==='KeyS'&&(e.ctrlKey||e.metaKey)){e.preventDefault();saveWall()}else if(e.code==='KeyN')nextTrack();
   else if(e.code==='KeyZ'&&(e.ctrlKey||e.metaKey)){e.preventDefault();undo()}else if(e.code==='KeyM')toggleMusic();else if(e.code==='KeyF')flip();else if(e.code==='Escape'&&wheel){wheel.hi=-1;closeWheel()}});
 addEventListener('keyup',e=>{keysDown[e.code]=false;if(e.code==='KeyQ'&&wheel&&wheel.mode==='cap')closeWheel()});
 
@@ -1616,7 +1625,7 @@ function tick(){
   else if(xr){
     /* floating hint, top right of view */
     camera.getWorldPosition(camW);camera.getWorldQuaternion(hudQ);tmp.set(.2,.13,-.6).applyQuaternion(hudQ).add(camW);
-    hudAge+=dt;if(vrNoteT>0){vrNoteT-=dt;if(vrNoteT<=0)drawHud()}hud.visible=hudAge<20||vrNoteT>0||ch.on;if(hud.visible){hud.position.copy(tmp);hud.quaternion.copy(hudQ);hud.material.opacity=vrNoteT>0||ch.on?1:Math.min(1,20-hudAge)}
+    hudAge+=dt;if(vrNoteT>0){vrNoteT-=dt;if(vrNoteT<=0)drawHud()}hud.visible=hudAge<20||vrNoteT>0;if(hud.visible){hud.position.copy(tmp);hud.quaternion.copy(hudQ);hud.material.opacity=vrNoteT>0?1:Math.min(1,20-hudAge)}
     if(hudOpen!==bookOn){hudOpen=bookOn;drawHud()}
     if(right&&right.userData.src){
       const gp=right.userData.src.gamepad,trig=gp&&gp.buttons[0]?gp.buttons[0].value:0;rgp=gp;
@@ -1632,10 +1641,10 @@ function tick(){
         if(mh){onMenu=true;const px=mh.uv.x*MW,py=(1-mh.uv.y)*MH,ri=regions.findIndex(r=>px>=r.x&&px<=r.x+r.w&&py>=r.y&&py<=r.y+r.h);
           if(ri!==hoverI){hoverI=ri;drawMenu();if(ri>=0)buzz(gp,.12,8)}if(trig>.5&&!trigLatch&&ri>=0){trigLatch=true;regions[ri].fn();buzz(gp,.5,30)}pointer.visible=true;pointer.scale.z=mh.distance}}
       if(!onMenu){pointer.visible=false;if(hoverI!==-1){hoverI=-1;drawMenu()}}
-      if(!onMenu&&trig>.6&&!trigLatch&&tool!=='tape'){camW.setFromMatrixPosition(right.matrixWorld);fw.set(0,0,-1).transformDirection(right.matrixWorld);raycaster.set(camW,fw);raycaster.far=3;if(boomHit(raycaster)){trigLatch=true;nextTrack();buzz(gp,.4,30)}}
+      if(!onMenu&&trig>.6&&!trigLatch&&tool!=='marker'){camW.setFromMatrixPosition(right.matrixWorld);fw.set(0,0,-1).transformDirection(right.matrixWorld);raycaster.set(camW,fw);raycaster.far=3;if(boomHit(raycaster)){trigLatch=true;nextTrack();buzz(gp,.4,30)}}
       if(trig<.3)trigLatch=false;
       if(!onMenu&&!trigLatch){
-        if(tool==='marker'){markerVR(s,gp)}else if(tool==='tape'){tapeVR(s,trig)}else if(tool==='roller'){handRoller.userData.head.getWorldPosition(camW);const dz=camW.z-s.origin.z;
+        if(tool==='marker'){markerVR(s,gp,trig)}else if(tool==='roller'){handRoller.userData.head.getWorldPosition(camW);const dz=camW.z-s.origin.z;
           if(dz<.07&&dz>-.2&&inWall(s,camW)){rollAt={x:(camW.x-s.origin.x)*PPM,y:(s.origin.y-camW.y)*PPM};fw.set(1,0,0).transformDirection(handPivot.matrixWorld);rollRot=Math.atan2(-fw.y,fw.x);
             buzz(gp,.08+Math.min(.4,camW.distanceTo(lastRoll)*20),20);lastRoll.copy(camW)}}
         else{pr=trig;raycaster.set(origin,dirV);raycaster.far=4;const h=raycaster.intersectObjects(s.meshes)[0];if(h){hit=h;dist=h.distance+.012}
@@ -1650,7 +1659,7 @@ function tick(){
       placeTablet(dt,left.userData.grip);
       if(gp&&edge('lT',!!(gp.buttons[0]&&gp.buttons[0].value>.6))&&camMode&&tablet.visible)camShoot();
       /* stencil in the left hand */
-      const g=btn(gp,1)&&tool==='stencil';
+      const g=btn(gp,1)&&tool==='stencil'&&!tabHeld&&!tabNear;
       if(g&&!sten.held){sten.held=true;sheet.visible=true;drawSheet()}
       if(!g&&sten.held){sten.held=false;if(sten.snapped){liftStencil();buzz(gp,.5,40)}sheet.visible=false}
       if(sten.held){if(!sten.snapped){camW.setFromMatrixPosition(left.matrixWorld);fw.set(0,0,-1).transformDirection(left.matrixWorld);sheet.position.copy(camW).addScaledVector(fw,.24);left.getWorldQuaternion(sheet.quaternion);
@@ -1674,8 +1683,7 @@ function tick(){
     rig.rotation.y=yaw;camera.position.y=1.65;camera.rotation.set(pitch,0,0);rig.updateMatrixWorld();
     raycaster.setFromCamera(mouse,camera);raycaster.far=Infinity;dirV.copy(raycaster.ray.direction);
     const h=wheel?null:raycaster.intersectObjects(s.meshes)[0];lastHit=h||null;
-    tapeDesk(s,h);
-    if(h){if(tool==='marker'||tool==='tape'){if(tool==='marker'&&mDown&&!looking){const {t}=h.object.userData;markAt={x:t.x+h.uv.x*t.w,y:t.y+(1-h.uv.y)*t.h}}}else if(tool==='roller'){if(mDown&&!looking){const {t}=h.object.userData;rollAt={x:t.x+h.uv.x*t.w,y:t.y+(1-h.uv.y)*t.h};rollRot=0}}
+    if(h){if(tool==='marker'){if(mDown&&!looking){const {t}=h.object.userData;markAt={x:t.x+h.uv.x*t.w,y:t.y+(1-h.uv.y)*t.h}}}else if(tool==='roller'){if(mDown&&!looking){const {t}=h.object.userData;rollAt={x:t.x+h.uv.x*t.w,y:t.y+(1-h.uv.y)*t.h};rollRot=0}}
       else{hit=h;dist=canDist;origin.copy(h.point).addScaledVector(dirV,-canDist);haveOrigin=true;opts={rot:cap.ay?-.5:0,k:1}}}
     if(tool==='can'||tool==='stencil')pr=mDown&&!looking&&!wheel?(shift?.4:1):0;
     viewPivot.rotation.set(-.1+mouse.y*.18,-.35-mouse.x*.25,-.06);
@@ -1702,7 +1710,7 @@ function tick(){
   cn.position.x=pr>.02?(Math.random()-.5)*.002:0;
   if(S.blink)S.blink.visible=(clock.elapsedTime%1.6)<.5;
   updDrips(dt);updMist(dt);
-  batch2Tick(dt,pr,(started||xr)&&(pr>.02||!!rollAt||!!markAt));if(started||xr)batchTick(dt,pr,rollAt||markAt);if(xr)renderViewfinder(dt);gpuFlush();if(!s.gpu){let up=0;for(const t of s.tiles)if(t.dirty&&up<6){t.tex.needsUpdate=true;t.dirty=false;up++}}
+  handsTick(dt);batch2Tick(dt,pr,(started||xr)&&(pr>.02||!!rollAt||!!markAt));if(started||xr)batchTick(dt,pr,rollAt||markAt);if(xr)renderViewfinder(dt);gpuFlush();if(!s.gpu){let up=0;for(const t of s.tiles)if(t.dirty&&up<6){t.tex.needsUpdate=true;t.dirty=false;up++}}
   if(xr){renderer.xr.enabled=true;if(renderer.getRenderTarget())renderer.setRenderTarget(null)}renderer.render(scene,camera);
 }
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
@@ -1711,7 +1719,7 @@ const bootStep=(name,fn)=>{try{fn()}catch(e){console.warn('startup step failed:'
 bootStep('gpu test',()=>{GPU_OK=!/[?&]cpu/.test(location.search)&&gpuSelfTest()});console.log('Midnight Burner paint path:',GPU_OK?'GPU':'CPU');sceneI=1;
 bootStep('build spot',()=>ensureScene(1));bootStep('set spot',()=>setScene(1));bootStep('can colour',()=>setCanColour(colI));bootStep('stencil sheet',drawSheet);bootStep('title',showTitle);
 (document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve()).then(()=>{bootStep('menu',drawMenu);setTimeout(()=>{if(!started&&!played)bootStep('title piece',newPiece)},150)});
-bootStep('sketch',loadSketch);bootStep('continue',refreshContinue);bootStep('rep',renderRep);
+bootStep('sketch',loadSketch);bootStep('continue',refreshContinue);
 let errShown=0;function reportErr(e){const m=(e&&e.message||String(e)).slice(0,120),line=e&&e.stack?(e.stack.split('\n')[1]||'').trim().slice(0,90):'';
   if(errShown++<3)console.error(e);if(window.__showErr)__showErr(m+'\n'+line);try{vrNote='Error: '+m.slice(0,40);vrNoteT=30;drawHud()}catch(_){}}
 
