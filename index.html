@@ -281,19 +281,20 @@ function sprayStep(s,st,cx,cy,dist,pr,dt,cap,col,o){
   if(L){const d=Math.hypot(cx-Lx,cy-Ly);if(d<Math.max(ex,ey)*4+300){steps=Math.min(28,Math.max(1,Math.ceil(d/(Math.min(ex,ey)*.3))));sx=Lx;sy=Ly}}
   const S=s.gpu?null:stamps(col),cr=Math.cos(rot),sr=Math.sin(rot);
   if(st.accum>=.03||steps>1){
-    const a=Math.min(.97,Math.max(.03,st.accum/steps));st.accum=0;
+    /* paint lands at full strength straight away: no slow build-up */
+    const a=Math.min(.96,Math.max(st.accum/steps,.03,.66*pr));st.accum=0;
     for(let i=1;i<=steps;i++){const t=i/steps,x=sx+(cx-sx)*t,y=sy+(cy-sy)*t;
-      pHalo(s,S,x,y,ex,ey,rot,a*(cap.halo||.1),col);pCore(s,S,x,y,ex,ey,rot,a,col);pCore(s,S,x,y,ex*.7,ey*.7,rot,a*.8,col)}
+      pHalo(s,S,x,y,ex*.72,ey*.72,rot,a*(cap.halo||.1)*.4,col);pCore(s,S,x,y,ex,ey,rot,a,col);pCore(s,S,x,y,ex*.72,ey*.72,rot,Math.min(.97,a*1.15),col)}
   }
-  const n=Math.min(110,rx*.7*(cap.speck||1)*pr*dt*72|0),R3=Math.max(ex,ey)*3.2;
+  const n=Math.min(40,rx*.25*(cap.speck||1)*pr*dt*72|0),R3=Math.max(ex,ey)*2.2;
   tilesIn(s,cx-R3,cy-R3,cx+R3,cy+R3,t=>{touch(s,t)});
   for(let i=0;i<n;i++){
-    const ang=Math.random()*6.283,rr=(.85+Math.abs(gauss())*1.05),lx=Math.cos(ang)*ex*rr,ly=Math.sin(ang)*ey*rr,f=Math.random(),x=cx+lx*cr-ly*sr+(sx-cx)*f,y=cy+lx*sr+ly*cr+(sy-cy)*f;
+    const ang=Math.random()*6.283,rr=(.9+Math.abs(gauss())*.45),lx=Math.cos(ang)*ex*rr,ly=Math.sin(ang)*ey*rr,f=Math.random(),x=cx+lx*cr-ly*sr+(sx-cx)*f,y=cy+lx*sr+ly*cr+(sy-cy)*f;
     const z=Math.random()<.96?.6+Math.random()*.7:1.4+Math.random()*.8;
     pDot(s,x,y,z,col,.12+Math.random()*.33)}
   /* first squeeze spits a few heavy droplets, feathering spits now and then */
-  if(st.age<.14&&pr>.3)for(let i=0;i<2;i++)pDisc(s,cx+gauss()*ex*1.3,cy+gauss()*ey*1.3,.8+Math.random()*1.6,col,.9);
-  if(pr<.45&&Math.random()<.12){pDisc(s,cx+gauss()*ex*1.2,cy+gauss()*ey*1.2,.9+Math.random()*1.3,col,.8)}
+  if(st.age<.1&&pr>.3)for(let i=0;i<1;i++)pDisc(s,cx+gauss()*ex*1.3,cy+gauss()*ey*1.3,.8+Math.random()*1.6,col,.9);
+  if(pr<.45&&Math.random()<.05){pDisc(s,cx+gauss()*ex*1.2,cy+gauss()*ey*1.2,.9+Math.random()*1.3,col,.8)}
   return rx;
 }
 /* paint roller: a 23 cm nap band, heavier at the ends, thinning as it runs dry */
@@ -955,16 +956,35 @@ $('#npNext').addEventListener('click',()=>{nextTrack()});
 
 window.__stage='proj';
 /* ---------- the tablet you hold in your left hand ---------- */
-const TAB_W=.3,TAB_H=.3*MH/MW+.03;
+/* a real tablet: aluminium shell with rounded corners, black glass front with even bezels, buttons, port, speakers and a camera bump on the back */
+const TAB_SW=.27,TAB_SH=.27*MH/MW,TAB_BZ=.013,TAB_W=TAB_SW+TAB_BZ*2,TAB_H=TAB_SH+TAB_BZ*2,TAB_D=.0085;
 const tablet=new THREE.Group();tablet.visible=false;scene.add(tablet);
-{const r=.018,w=TAB_W,h=TAB_H,sh=new THREE.Shape();sh.moveTo(-w/2+r,-h/2);sh.lineTo(w/2-r,-h/2);sh.quadraticCurveTo(w/2,-h/2,w/2,-h/2+r);sh.lineTo(w/2,h/2-r);sh.quadraticCurveTo(w/2,h/2,w/2-r,h/2);sh.lineTo(-w/2+r,h/2);sh.quadraticCurveTo(-w/2,h/2,-w/2,h/2-r);sh.lineTo(-w/2,-h/2+r);sh.quadraticCurveTo(-w/2,-h/2,-w/2+r,-h/2);
- const body=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:.008,bevelEnabled:true,bevelThickness:.002,bevelSize:.002,bevelSegments:3,curveSegments:8}),std({color:0x1d1f24,metalness:.7,roughness:.32}));body.position.z=-.008;tablet.add(body);
- const bez=new THREE.Mesh(new THREE.PlaneGeometry(w-.008,h-.008),new THREE.MeshBasicMaterial({color:0x050506}));bez.position.z=.0021;tablet.add(bez);
- const cam=new THREE.Mesh(new THREE.CircleGeometry(.0028,16),new THREE.MeshBasicMaterial({color:0x22262e}));cam.position.set(0,h/2-.009,.0023);tablet.add(cam);
- for(const [y,l] of [[.06,.03],[.015,.018]]){const b=new THREE.Mesh(new THREE.BoxGeometry(.003,l,.004),std({color:0x2a2d33,metalness:.8,roughness:.3}));b.position.set(w/2+.0015,y,-.004);tablet.add(b)}
+function rrShape(w,h,r){const sh=new THREE.Shape();sh.moveTo(-w/2+r,-h/2);sh.lineTo(w/2-r,-h/2);sh.quadraticCurveTo(w/2,-h/2,w/2,-h/2+r);sh.lineTo(w/2,h/2-r);sh.quadraticCurveTo(w/2,h/2,w/2-r,h/2);sh.lineTo(-w/2+r,h/2);sh.quadraticCurveTo(-w/2,h/2,-w/2,h/2-r);sh.lineTo(-w/2,-h/2+r);sh.quadraticCurveTo(-w/2,-h/2,-w/2+r,-h/2);return sh}
+{const B=new THREE.Group();B.position.y=-.004;tablet.add(B);const w=TAB_W,h=TAB_H,R=.026;
+ const alu=std({color:0xa7acb3,metalness:.85,roughness:.34}),aluDark=std({color:0x7c8189,metalness:.85,roughness:.4}),blackGlass=std({color:0x040507,metalness:.3,roughness:.07}),hole=new THREE.MeshBasicMaterial({color:0x08090b});
+ /* shell: the aluminium body with softly rounded edges */
+ const shell=new THREE.Mesh(new THREE.ExtrudeGeometry(rrShape(w-.005,h-.005,R-.0025),{depth:TAB_D-.005,bevelEnabled:true,bevelThickness:.0025,bevelSize:.0025,bevelSegments:4,curveSegments:14}),alu);
+ shell.position.z=-TAB_D+.0025;B.add(shell);
+ /* black glass front: the bezel around the screen */
+ const glass=new THREE.Mesh(new THREE.ShapeGeometry(rrShape(w-.003,h-.003,R-.0015),14),blackGlass);glass.position.z=.0009;B.add(glass);
+ /* front camera and its sensor, centred in the top bezel */
+ const fc=new THREE.Mesh(new THREE.CircleGeometry(.0024,18),new THREE.MeshBasicMaterial({color:0x1b2030}));fc.position.set(0,h/2-TAB_BZ/2,.0011);B.add(fc);
+ const fr=new THREE.Mesh(new THREE.RingGeometry(.0024,.003,18),new THREE.MeshBasicMaterial({color:0x111318}));fr.position.copy(fc.position);B.add(fr);
+ /* top button and two volume buttons on the right edge */
+ const btnM=(x,y,z,bw,bh,bd)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(bw,bh,bd),aluDark);m.position.set(x,y,z);B.add(m)};
+ btnM(w/2-.045,h/2+.0007,-TAB_D/2,.03,.003,.0045);btnM(w/2+.0007,h/2-.06,-TAB_D/2,.003,.026,.0045);btnM(w/2+.0007,h/2-.092,-TAB_D/2,.003,.026,.0045);
+ /* charging port and speaker holes on the bottom edge, speakers on the top edge too */
+ const port=new THREE.Mesh(new THREE.BoxGeometry(.011,.0016,.0034),hole);port.position.set(0,-h/2-.0003,-TAB_D/2);B.add(port);
+ for(const ey of [-h/2-.0004,h/2+.0004])for(const sx of [-1,1])for(let k=0;k<5;k++){const d=new THREE.Mesh(new THREE.CylinderGeometry(.0008,.0008,.002,6),hole);d.position.set(sx*(w/2-.03-k*.0045),ey,-TAB_D/2);B.add(d)}
+ /* back: camera bump with two lenses and a flash */
+ const bump=new THREE.Mesh(new THREE.ExtrudeGeometry(rrShape(.026,.044,.008),{depth:.0012,bevelEnabled:true,bevelThickness:.0006,bevelSize:.0006,bevelSegments:2}),aluDark);bump.rotation.y=Math.PI;bump.position.set(-w/2+.026,h/2-.034,-TAB_D-.0004);B.add(bump);
+ for(const ly of [.011,-.008]){const L=new THREE.Mesh(new THREE.CylinderGeometry(.0068,.0068,.002,24),blackGlass);L.rotation.x=Math.PI/2;L.position.set(-w/2+.026,h/2-.034+ly,-TAB_D-.0028);B.add(L);
+   const lr=new THREE.Mesh(new THREE.TorusGeometry(.0068,.0009,6,24),alu);lr.position.copy(L.position);lr.position.z-=.001;B.add(lr)}
+ const fl=new THREE.Mesh(new THREE.CircleGeometry(.0022,12),new THREE.MeshBasicMaterial({color:0xf3eedf}));fl.rotation.y=Math.PI;fl.position.set(-w/2+.026+.0085,h/2-.034+.001,-TAB_D-.0025);B.add(fl);
+ /* the screen itself, and a faint reflection across the glass */
  menuM.position.set(0,-.004,.0026);menuM.visible=true;tablet.add(menuM);
  const gc=mkCanvas(256,256),gx=gc.getContext('2d'),gg=gx.createLinearGradient(0,0,256,256);gg.addColorStop(0,'rgba(255,255,255,.10)');gg.addColorStop(.35,'rgba(255,255,255,.02)');gg.addColorStop(.36,'rgba(255,255,255,0)');gg.addColorStop(1,'rgba(255,255,255,0)');gx.fillStyle=gg;gx.fillRect(0,0,256,256);
- const glassM=new THREE.Mesh(new THREE.PlaneGeometry(w-.01,h-.01),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(gc),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));glassM.position.z=.0032;tablet.add(glassM)}
+ const glassM=new THREE.Mesh(new THREE.PlaneGeometry(TAB_SW,TAB_SH),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(gc),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));glassM.position.set(0,-.004,.0034);tablet.add(glassM)}
 /* ---------- the tablet as a camera: a lens on the back, a live viewfinder on the screen ---------- */
 let camMode=false,camFlash=0,vfFrame=0,hasShot=false;const lastShot=mkCanvas(192,108);
 const VF={x:24,y:118,w:464,h:261};
@@ -1524,8 +1544,37 @@ const leftHand=makeHand(-1),freeRight=makeHand(1);leftHand.visible=freeRight.vis
 const btnVal=(gp,i)=>gp&&gp.buttons[i]?gp.buttons[i].value||(gp.buttons[i].pressed?1:0):0,btnTouch=(gp,i)=>!!(gp&&gp.buttons[i]&&(gp.buttons[i].touched||gp.buttons[i].pressed));
 const thumbDown=gp=>btnTouch(gp,3)||btnTouch(gp,4)||btnTouch(gp,5);
 
-/* the can glove: index finger presses the nozzle with the trigger */
-glovesTick=function(trig){canGlove.userData.idx.rotation.x=-trig*.38;viewGlove.userData.idx.rotation.x=-trig*.38;leftGlove.visible=false};
+/* ---- right hand wrapped around the can, built to the can's real size so nothing sinks into it ----
+   can space: axis Y, label radius .0336, top of nozzle at y .236; angles measured from +X toward +Z (the back of the can, where your hand is) */
+const CAN_R=.0336;
+function tubeBetween(a,b,r0,r1){const d=new THREE.Vector3().subVectors(b,a),L=d.length(),m=new THREE.Mesh(new THREE.CylinderGeometry(r1,r0,L,10),handMat);
+  m.position.copy(a).addScaledVector(d,.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());return m}
+const knob=(p,r)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(r,10,8),handMat);m.position.copy(p);return m};
+const onCan=(deg,r,y)=>{const a=deg*Math.PI/180;return new THREE.Vector3(Math.cos(a)*r,y,Math.sin(a)*r)};
+function wrapFinger(g,y,from,sweep,tube){const R=CAN_R+tube+.0012,arc=new THREE.Mesh(new THREE.TorusGeometry(R,tube,8,22,sweep*Math.PI/180),handMat);
+  arc.rotation.x=Math.PI/2;const p=new THREE.Group();p.rotation.y=-from*Math.PI/180;p.position.y=y;p.add(arc);g.add(p);g.add(knob(onCan(from+sweep,R,y),tube*.98));g.add(knob(onCan(from,R,y),tube*1.05))}
+function makeCanHand(){const g=new THREE.Group(),PA=72;
+  /* palm and back of the hand, resting on the back of the can */
+  const pv=new THREE.Group();pv.rotation.y=-PA*Math.PI/180;g.add(pv);
+  const palm=new THREE.Mesh(new THREE.SphereGeometry(1,18,14),handMat);palm.scale.set(.012,.05,.038);palm.position.set(CAN_R+.0125,.105,0);pv.add(palm);
+  const back=new THREE.Mesh(new THREE.SphereGeometry(1,18,14),handMat);back.scale.set(.014,.048,.04);back.position.set(CAN_R+.024,.103,0);pv.add(back);
+  /* wrist and cuff leaving the hand down and back toward your arm */
+  const w0=new THREE.Vector3(CAN_R+.026,.07,0),w1=new THREE.Vector3(CAN_R+.06,.012,0);pv.add(tubeBetween(w0,w1,.027,.03));
+  const cuff=tubeBetween(new THREE.Vector3().lerpVectors(w0,w1,.78),w1,.032,.032);cuff.material=handCuffMat;pv.add(cuff);
+  /* middle, ring and little finger wrap round the front of the can */
+  wrapFinger(g,.124,PA+40,168,.0093);wrapFinger(g,.1,PA+40,160,.0093);wrapFinger(g,.077,PA+38,138,.0083);
+  /* thumb wraps the other way round the right side */
+  wrapFinger(g,.132,PA-118,78,.0105);
+  /* index finger: up the back of the can, over the shoulder, pad on the nozzle */
+  const R=CAN_R+.0105,p0=onCan(PA+30,R,.148),p1=onCan(PA+24,R,.19),p2=onCan(PA+20,.026,.229);
+  g.add(tubeBetween(p0,p1,.0098,.0094),knob(p0,.0098),knob(p1,.0094));
+  const tipG=new THREE.Group();tipG.position.copy(p2);g.add(tipG);g.add(knob(p2,.009));
+  const p3=new THREE.Vector3(0,.2445,.002).sub(p2);tipG.add(tubeBetween(new THREE.Vector3(),p3,.009,.0085));tipG.add(knob(p3,.0088));
+  g.userData.tip=tipG;return g}
+const canHand=makeCanHand(),viewHand=makeCanHand();handCan.add(canHand);viewCan.add(viewHand);canGlove.visible=false;viewGlove.visible=false;
+const canNoz=[handCan.children[3],viewCan.children[3]];
+glovesTick=function(trig){const t=Math.max(0,Math.min(1,trig||0));canHand.userData.tip.rotation.x=-t*.22;viewHand.userData.tip.rotation.x=-t*.22;
+  for(const n of canNoz)if(n)n.position.y=.228-t*.003;leftGlove.visible=false;canGlove.visible=viewGlove.visible=false};
 
 /* ---- the tablet: a real object. Squeeze the left grip next to it to pick it up, let go to leave it floating there ---- */
 const TAB_S=.72;let tabHeld=false,tabWasOn=false,tabBlend=1,tabGPrev=0,tabNear=false;
@@ -1533,10 +1582,13 @@ const tabHoldM=new THREE.Matrix4().compose(new THREE.Vector3(TAB_W*TAB_S/2-.012,
 const tabTP=new THREE.Vector3(),tabTQ=new THREE.Quaternion(),tabTS=new THREE.Vector3(),tabTM=new THREE.Matrix4(),tabLV=new THREE.Vector3();
 /* a green frame lights up when your hand is close enough to grab it */
 const tabGlow=new THREE.Mesh(new THREE.PlaneGeometry(TAB_W+.03,TAB_H+.03),new THREE.MeshBasicMaterial({color:0xc6ff00,transparent:true,opacity:.35,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
-tabGlow.position.z=-.011;tabGlow.visible=false;tablet.add(tabGlow);
-/* a slim case on the back so it reads as a tablet from every side */
-{const back=new THREE.Mesh(new THREE.PlaneGeometry(TAB_W-.01,TAB_H-.01),std({color:0x2a2d33,metalness:.6,roughness:.35}));back.position.z=-.0105;back.rotation.y=Math.PI;tablet.add(back);
- const lens=new THREE.Mesh(new THREE.CircleGeometry(.009,20),new THREE.MeshBasicMaterial({color:0x0b0c0f}));lens.position.set(-TAB_W/2+.03,TAB_H/2-.03,-.0108);lens.rotation.y=Math.PI;tablet.add(lens)}
+tabGlow.position.set(0,-.004,-TAB_D-.003);tabGlow.visible=false;tablet.add(tabGlow);
+/* held pose: your hand stays on the tablet's left edge, the screen turns to face your eyes, so your wrist can stay relaxed */
+const hpG=new THREE.Vector3(),hpE=new THREE.Vector3(),hpR=new THREE.Vector3(),hpU=new THREE.Vector3(),hpM=new THREE.Matrix4(),hpUp=new THREE.Vector3(0,1,0);
+function heldPose(grip){grip.getWorldPosition(hpG);camera.getWorldPosition(hpE);
+  const half=TAB_W*TAB_S/2-.012;let c=tabTP.copy(hpG);
+  for(let k=0;k<2;k++){hpM.lookAt(hpE,c,hpUp);tabTQ.setFromRotationMatrix(hpM);hpR.set(1,0,0).applyQuaternion(tabTQ);hpU.set(0,1,0).applyQuaternion(tabTQ);c=tabTP.copy(hpG).addScaledVector(hpR,half).addScaledVector(hpU,.03)}
+  hpM.lookAt(hpE,tabTP,hpUp);tabTQ.setFromRotationMatrix(hpM);tabTS.set(0,0,0);tabTQ.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-.08))}
 function handNearTablet(grip){grip.getWorldPosition(tabLV);tablet.worldToLocal(tabLV);const m=.06/TAB_S;return Math.abs(tabLV.x)<TAB_W/2+m&&Math.abs(tabLV.y)<TAB_H/2+m&&Math.abs(tabLV.z)<.09/TAB_S}
 function summonTablet(){camera.getWorldPosition(tmp);camera.getWorldQuaternion(hudQ);fw.set(0,0,-1).applyQuaternion(hudQ);fw.y=0;if(fw.lengthSq()<1e-4)fw.set(0,0,-1);fw.normalize();
   tablet.position.copy(tmp).addScaledVector(fw,.42);tablet.position.y-=.22;tabM.lookAt(tmp,tablet.position,tabUp);tabQ.setFromRotationMatrix(tabM);tablet.quaternion.copy(tabQ);tablet.rotateX(-.25);tabHeld=false}
@@ -1548,7 +1600,7 @@ placeTablet=function(dt,grip){const gp=left&&left.userData.src&&left.userData.sr
   if(!tabHeld&&tabNear&&g>.6&&tabGPrev<=.6&&!sten.held){tabHeld=true;tabBlend=0;buzz(gp,.5,40);clack(.25)}
   else if(tabHeld&&g<.35){tabHeld=false;buzz(gp,.2,20)}
   tabGPrev=g;tabGlow.visible=tabNear&&!tabHeld;
-  if(tabHeld){tabTM.multiplyMatrices(grip.matrixWorld,tabHoldM);tabTM.decompose(tabTP,tabTQ,tabTS);tabBlend=Math.min(1,tabBlend+dt*9);
+  if(tabHeld){heldPose(grip);tabBlend=Math.min(1,tabBlend+dt*9);
     if(tabBlend<1){tablet.position.lerp(tabTP,tabBlend);tablet.quaternion.slerp(tabTQ,tabBlend)}else{tablet.position.copy(tabTP);tablet.quaternion.copy(tabTQ)}}};
 /* hands follow the controllers; the left one wraps the tablet's edge while you hold it */
 let handsOn=false;
